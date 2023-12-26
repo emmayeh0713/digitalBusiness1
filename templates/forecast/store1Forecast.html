@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.min.css">
+    <!-- Boxicons CSS -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.18/c3.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.18/c3.js"></script>
+    <title>分店A預測原物料</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Noto+Sans+TC:wght@500&family=Poppins:wght@300;400;500;600;700&display=swap');
+        *{
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: all .3s;
+            -webkit-box-sizing: border-box;
+            -webkit-transition: all .3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .sidebar{
+            position: fixed;
+            top: 0;
+            left:0;
+            height: 100%;
+            width: 240px;
+            color: aliceblue;
+            background-color: #003D79;
+        }
+
+        .sidebar .logo_details{
+            height: 80px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar .logo_details i{
+            font-size: 30px;
+            color: aliceblue;
+            height:30px;
+            min-width: 50px;
+            text-align: center;
+            line-height: 30px;
+        }
+
+        .sidebar .logo_details .logo_name{
+            font-size:18px;
+            color: aliceblue;
+            font-weight: 600;
+        }
+
+        .sidebar .nav_links{
+            height: 100%;
+            padding:30px 0 150px 0;
+            overflow: auto;
+        }
+
+        .sidebar .nav_links::-webkit-scrollbar{
+            display: none;
+        }
+
+
+        .sidebar .nav_links li{
+        position: relative;
+        list-style: none;
+        }
+
+        .sidebar .nav_links li:hover{
+            background-color: #0554a2;
+        }
+
+
+        .sidebar .nav_links li .icon_link{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+
+        .sidebar .nav_links li i{
+            font-size: 20px;
+            color: aliceblue;
+            height:50px;
+            min-width: 50px;
+            text-align: center;
+            line-height: 50px;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav_links li.showMenu i.arrow{
+        transform: rotate(-180deg);
+        }
+
+
+        .sidebar .nav_links li a{
+            display: flex;
+            align-items: center;
+            text-decoration: none;  
+        }
+
+        .sidebar .nav_links li a .link_name{
+            font-size:18px;
+            font-weight: 500;
+            color: aliceblue;
+        }
+
+        .sidebar .nav_links li .sub_menu{
+            padding: 6px 6px 14px 80px;
+            margin-top: -10px;
+            background:#0554a2;
+            display: none;
+        }
+
+
+        .sidebar.close .nav_links li .sub_menu{
+            position:absolute;
+            left: 100%;
+            top: -10;
+            margin-top: 0;
+            padding: 10px 20px;
+            border-radius: 0 6px 6px 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sidebar .nav_links li.showMenu .sub_menu{
+            display: block;
+        }
+
+
+        .sidebar.close .nav_links li:hover .sub_menu{
+            top: 0;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sidebar .nav_links li .sub_menu a{
+            color: aliceblue;
+            font-size: 15px;
+            padding: 5px 0;
+            white-space: nowrap;
+            opacity: 0.6;
+        }
+
+        .sidebar .nav_links li .sub_menu a:hover{
+            opacity: 1;
+        }
+
+        .sidebar .nav_links li .sub_menu .link_name{
+            display: none;
+        }
+
+        .sidebar.close .nav_links li .sub_menu .link_name{
+        font-size: 18px;
+        opacity: 1;
+        display:block;
+        }
+
+        .sidebar .nav_links li .sub_menu.blank{
+            opacity: 1;
+            pointer-events: auto;
+            padding:3px 20px 6px 16px;
+        }
+
+        .sidebar .nav_links li:hover .sub_menu.blank{
+            top: 50%;
+            transform: translate(-50%);
+        }
+
+        /* 預留給側邊選單的空間 */
+        .main-content {
+            margin-left: 290px;
+            margin-top: 20px;
+        }
+
+        .main-content h1{
+            margin-top: 1%;
+            font-size: 40px;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .content_table{
+            border-collapse: collapse;
+            margin: 20px 20px;
+            font-size: 0.9em;
+            min-width: 500px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+        }
+
+        .content_table thead tr{
+            background-color:#001F3F;
+            color: #f2f2f2;
+            text-align: left;
+            font-weight:700;
+        }
+
+        .content_table th, .content_table td{
+            padding: 12px 15px;
+        }
+
+        .content_table tbody tr{
+            border-bottom: 1px solid #dddddd;
+            font-weight:500;
+        }
+
+        .content_table tbody tr:nth-of-type(even){
+            background-color: #f3f3f3;
+        }
+
+        .content_table tbody tr:last-of-type{
+            border-bottom: 2px solid #001F3F;
+        }
+
+        .chart_style{
+            margin-top: 20px;
+            margin-right: 40px;
+            max-width: 560px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            padding: 2px 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #chart-container {
+            width: 75%;
+            margin: auto;
+        }
+
+        canvas {
+            border: 1px solid #ccc;
+        }
+
+        .selector{
+            display: block;
+            margin-top: 20px;
+            width: 92%;
+            height: 34px;
+            padding: 3px 12px;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #555;
+            background-color: #fff;
+            background-image: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+            box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+            -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+            -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+            transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- sidebar -->
+    <div class="sidebar">
+        <div class="logo_details">
+            <i class='bx bxs-drink'></i>
+            <span class="logo_name">約翰紅茶公司</span>
+        </div>
+        <ul class="nav_links">
+            <li>
+                <div class="icon_link">
+                    <a href="">
+                        <i class='bx bx-line-chart' ></i>
+                        <span class="link_name">銷售分析</span>
+                    </a>
+                    <i class='bx bx-chevron-down arrow ' ></i>
+                </div>
+                <ul class="sub_menu">
+                    <li><a href="">銷售量總額</a></li>
+                        <li><a href="/get/month">月銷售量總額</a></li>
+                        <li><a href="/get/month2">月銷售量分店</a></li>
+                    <li><a href="/get/season">季銷售量總額</a></li>
+                    <li><a href="/get/season2">季銷售量分店</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <div class="icon_link">
+                    <a href="">
+                        <i class='bx bxs-package' ></i>
+                        <span class="link_name">庫存管理</span>
+                    </a>
+                    <i class='bx bx-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub_menu">
+                    <li><a href="/forecastA">分店A預測原物料</a></li>
+                    <li><a href="/forecastB">分店B預測原物料</a></li>
+                    <li><a href="/forecastC">分店C預測原物料</a></li>
+                    <li><a href="/showIngredient1">分店A庫存量與進貨</a></li>
+                    <li><a href="/showIngredient2">分店B庫存量與進貨</a></li>
+                    <li><a href="/showIngredient3">分店C庫存量與進貨</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <div class="icon_link">
+                    <a href="#">
+                        <i class='bx bxs-pie-chart-alt-2' ></i>
+                        <span class="link_name">顧客分析</span>
+                    </a>
+                    <i class='bx bx-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub_menu">
+                    <li><a href="/get/member">總部會員管理</a></li>
+                    <li><a href="/get/clvA">分店A顧客分群</a></li>
+                    <li><a href="/get/clvB">分店B顧客分群</a></li>
+                    <li><a href="/get/clvC">分店C顧客分群</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <!-- sidebar end -->
+    <!-- content -->
+    <div class="main-content">
+        <h1>分店A預測原物料數據</h1>
+        <div class="container">
+            <div class="row">
+                <div class="col mt-4">
+                    <div id="table-container">
+                        <table id="quantity-table" class="content_table">
+                            <thead>
+                                <tr>
+                                    <th>原料名稱</th>
+                                    <th>預估數量</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col mt-4">
+                    <div>
+                        <!-- <label for="item-selector">品項：</label> -->
+                        <select  class="selector" id="item-selector" onchange="updateTableAndChart()">
+                            <option value="item0">總覽</option>
+                            <option value="item1">曼非紅茶</option>
+                            <option value="item2">雨果紅茶</option>
+                            <option value="item3">灼香紅茶</option>
+                            <option value="item4">雨果那提</option>
+                            <option value="item5">曼非那提</option>
+                            <option value="item6">珍珠那提</option>
+                            <option value="item7">生乳灼香紅</option>
+                            <option value="item8">生乳紅茶</option>
+                            <option value="item9">東方檸檬茶</option>
+                            <option value="item10">冰淇淋紅茶</option>
+                        </select>
+                    </div>
+                    <div class="chart_style">
+                        <div id="chart"></div>
+                    </div>
+                </div>
+            </div>
+               
+
+        </div>
+        <div>
+            
+        </div>
+       
+    </div>
+
+
+
+
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.min.js"></script>
+<script>
+    // 模擬图表数据
+    const data = {
+        item1: {
+            line1: [79,65,58,87,56,67,89,88,75,90,69,100,98,78,71,98,104,78,90,59,99,87,78,76,88,76,70,83,78,78],
+            line2: [null,74.9104844102275, 76.95524220511375, 69.95524220511375, 66.45524220511375, 80.95524220511375, 65.45524220511375, 70.95524220511375, 81.95524220511375, 81.45524220511375, 74.95524220511375, 82.45524220511375, 71.95524220511375, 87.45524220511375, 86.45524220511375, 76.45524220511375, 72.95524220511375, 86.45524220511375, 89.45524220511375, 76.45524220511375, 82.45524220511375, 66.95524220511375, 86.95524220511375, 80.95524220511375, 76.45524220511375, 75.45524220511375, 81.45524220511375, 75.45524220511375, 72.45524220511375, 78.95524220511375, 76.45524220511375]
+        },
+        item2: {
+            line1: [96,103,89,93,99,91,104,110,98,96,89,111,87,90,95,119,103,100,99,89,102,93,100,99,104,104,98,90,99,100],
+            line2: [null,98.61857329948809, 97.30928664974405, 100.80928664974405, 93.80928664974405, 95.80928664974405, 98.80928664974405, 94.80928664974405, 101.30928664974405, 104.30928664974405, 98.30928664974405, 97.30928664974405, 93.80928664974405, 104.80928664974405, 92.80928664974405, 94.30928664974405, 96.80928664974405, 108.80928664974405, 100.80928664974405, 99.30928664974405, 98.80928664974405, 93.80928664974405, 100.30928664974405, 95.80928664974405, 99.30928664974405, 98.80928664974405, 101.30928664974405, 101.30928664974405, 98.30928664974405, 94.30928664974405, 98.80928664974405]
+        },
+        item3: {
+            line1: [98,78,71,98,104,78,89,96,79,65,58,87,56,67,78,90,59,76,88,76,89,90,104,78,98,78,76,80,76,87],
+            line2: [null,82.10103993391425, 90.05051996695713, 80.05051996695713, 76.55051996695713, 90.05051996695713, 93.05051996695713, 80.05051996695713, 85.55051996695713, 89.05051996695713, 80.55051996695713, 73.55051996695713, 70.05051996695713, 84.55051996695713, 69.05051996695713, 74.55051996695713, 80.05051996695713, 86.05051996695713, 70.55051996695713, 79.05051996695713, 85.05051996695713, 79.05051996695713, 85.55051996695713, 86.05051996695713, 93.05051996695713, 80.05051996695713, 90.05051996695713, 80.05051996695713, 79.05051996695713, 81.05051996695713, 79.05051996695713]
+        },
+        item4: {
+            line1: [67,78,64,56,65,58,75,90,69,78,71,76,70,83,59,76,88,76,76,68,70,63,53,66,54,67,59,76,88,76],
+            line2: [null,73.55393389230855, 70.27696694615427, 75.77696694615427, 68.77696694615427, 64.77696694615427, 69.27696694615427, 65.77696694615427, 74.27696694615427, 81.77696694615427, 71.27696694615427, 75.77696694615427, 72.27696694615427, 74.77696694615427, 71.77696694615427, 78.27696694615427, 66.27696694615427, 74.77696694615427, 80.77696694615427, 74.77696694615427, 74.77696694615427, 70.77696694615427, 71.77696694615427, 68.27696694615427, 63.276966946154275, 69.77696694615427, 63.776966946154275, 70.27696694615427, 66.27696694615427, 74.77696694615427, 80.77696694615427]
+        },
+        item5: {
+            line1: [58,67,63,54,49,66,76,68,70,63,53,67,63,55,62,60,66,54,67,60,56,65,54,68,65,58,65,64,56,60],
+            line2: [null,62.36486856185792, 60.18243428092896, 64.68243428092896, 62.68243428092896, 58.18243428092896, 55.68243428092896, 64.18243428092896, 69.18243428092896, 65.18243428092896, 66.18243428092896, 62.68243428092896, 57.68243428092896, 64.68243428092896, 62.68243428092896, 58.68243428092896, 62.18243428092896, 61.18243428092896, 64.18243428092896, 58.18243428092896, 64.68243428092896, 61.18243428092896, 59.18243428092896, 63.68243428092896, 58.18243428092896, 65.18243428092896, 63.68243428092896, 60.18243428092896, 63.68243428092896, 63.18243428092896, 59.18243428092896]
+        },
+        item6: {
+            line1: [60,69,65,56,51,68,78,70,72,65,55,69,65,57,64,62,68,56,70,62,64,57,47,60,48,61,53,70,82,70],
+            line2: [null,65.06108694401479, 62.530543472007395, 67.0305434720074, 65.0305434720074, 60.530543472007395, 58.030543472007395, 66.5305434720074, 71.5305434720074, 67.5305434720074, 68.5305434720074, 65.0305434720074, 60.030543472007395, 67.0305434720074, 65.0305434720074, 61.030543472007395, 64.5305434720074, 63.530543472007395, 66.5305434720074, 60.530543472007395, 67.5305434720074, 63.530543472007395, 64.5305434720074, 61.030543472007395, 56.030543472007395, 62.530543472007395, 56.530543472007395, 63.030543472007395, 59.030543472007395, 67.5305434720074, 73.5305434720074]
+        },
+        item7: {
+            line1: [53,62,58,49,44,61,71,63,65,58,48,62,58,50,57,55,61,48,61,54,50,59,48,62,59,52,59,58,50,54],
+            line2: [null,56.75058100799573, 54.87529050399786, 59.37529050399786, 57.37529050399786, 52.87529050399786, 50.37529050399786, 58.87529050399786, 63.87529050399786, 59.87529050399786, 60.87529050399786, 57.37529050399786, 52.37529050399786, 59.37529050399786, 57.37529050399786, 53.37529050399786, 56.87529050399786, 55.87529050399786, 58.87529050399786, 52.37529050399786, 58.87529050399786, 55.37529050399786, 53.37529050399786, 57.87529050399786, 52.37529050399786, 59.37529050399786, 57.87529050399786, 54.37529050399786, 57.87529050399786, 57.37529050399786, 53.37529050399786]
+        },
+        item8: {
+            line1: [57,68,54,46,55,48,65,80,59,68,61,66,60,73,49,66,78,66,66,58,60,53,43,56,88,68,66,70,66,77],
+            line2: [null,67.31250655207342, 62.15625327603671, 67.65625327603671, 60.65625327603671, 56.65625327603671, 61.15625327603671, 57.65625327603671, 66.15625327603671, 73.65625327603671, 63.15625327603671, 67.65625327603671, 64.15625327603671, 66.65625327603671, 63.65625327603671, 70.15625327603671, 58.15625327603671, 66.65625327603671, 72.65625327603671, 66.65625327603671, 66.65625327603671, 62.65625327603671, 63.65625327603671, 60.15625327603671, 55.15625327603671, 61.65625327603671, 77.65625327603671, 67.65625327603671, 66.65625327603671, 68.65625327603671, 66.65625327603671, 72.15625327603671]
+        },
+        item9: {
+            line1: [55,56,60,51,46,63,73,65,67,60,50,57,66,62,53,48,65,65,67,69,62,52,66,63,52,63,61,58,61,72],
+            line2: [null,66.6441659141286, 60.8220829570643, 61.3220829570643, 63.3220829570643, 58.8220829570643, 56.3220829570643, 64.82208295706431, 69.82208295706431, 65.82208295706431, 66.82208295706431, 63.3220829570643, 58.3220829570643, 61.8220829570643, 66.32208295706431, 64.32208295706431, 59.8220829570643, 57.3220829570643, 65.82208295706431, 65.82208295706431, 66.82208295706431, 67.82208295706431, 64.32208295706431, 59.3220829570643, 66.32208295706431, 64.82208295706431, 59.3220829570643, 64.82208295706431, 63.8220829570643, 62.3220829570643, 63.8220829570643]
+        },
+        item10: {
+            line1: [57,66,62,53,48,65,75,67,69,62,52,66,62,54,61,59,65,53,66,59,55,64,53,67,64,57,64,63,55,59],
+            line2: [null,61.36485483689104, 59.18242741844552, 63.68242741844552, 61.68242741844552, 57.18242741844552, 54.68242741844552, 63.18242741844552, 68.18242741844551, 64.18242741844551, 65.18242741844551, 61.68242741844552, 56.68242741844552, 63.68242741844552, 61.68242741844552, 57.68242741844552, 61.18242741844552, 60.18242741844552, 63.18242741844552, 57.18242741844552, 63.68242741844552, 60.18242741844552, 58.18242741844552, 62.68242741844552, 57.18242741844552, 64.18242741844551, 62.68242741844552, 59.18242741844552, 62.68242741844552, 62.18242741844552, 58.18242741844552]
+        },
+    };
+
+
+    // 模擬表格数据
+    const tableData = {
+        item1: [
+            { name: 'BOPF茶葉', quantity: 5 },
+           
+            // 其他日期数据...
+        ],
+        item2: [
+            { name: 'GFBOP茶葉', quantity: 4},
+     
+           
+            // 其他日期数据...
+        ],
+        item3: [
+            { name: 'TW茶葉', quantity: 5 },
+ 
+           
+            // 其他日期数据...
+        ],
+        item4: [
+            { name: 'BOPF茶葉', quantity: 4 },
+            { name: '牛奶', quantity: 11 },
+           
+            // 其他日期数据...
+        ],
+        item5: [
+            { name: 'GFBOP茶葉', quantity: 4 },
+            { name: '牛奶', quantity: 9 },
+           
+            // 其他日期数据...
+        ],
+        item6: [
+            { name: 'TW茶葉', quantity: 5 },
+            { name: '牛奶', quantity: 11 },
+            { name: '珍珠', quantity: 3 },
+           
+            // 其他日期数据...
+        ],
+       
+        item7: [
+            { name: 'TW茶葉', quantity: 3 },
+            { name: '鮮奶油', quantity: 7},
+           
+            // 其他日期数据...
+        ],
+        item8: [
+            { name: 'KT茶葉', quantity: 4 },
+            { name: '鮮奶油', quantity: 8 },
+           
+            // 其他日期数据...
+        ],
+        item9: [
+         
+            { name: 'LN茶葉', quantity: 3 },
+           
+            // 其他日期数据...
+        ],
+        item10: [
+            { name: 'KT茶葉', quantity: 4 },
+            { name: '冰淇淋', quantity: 7 },
+           
+            // 其他日期数据...
+        ],
+        // 其他品项的数据...
+    };
+
+    
+    function drawChart() {
+        const selectedItem = document.getElementById('item-selector').value;
+        const selectedData = data[selectedItem];
+
+        const allValues = selectedData.line1.concat(selectedData.line2);
+        const maxValue = Math.max(...allValues);
+        const minValue = Math.min(...allValues);
+
+        const chart = c3.generate({
+            bindto: '#chart',
+            data: {
+                columns: [
+                    ['實際值', ...selectedData.line1],
+                    ['預測值', ...selectedData.line2]
+                ],
+                colors: {
+                    '實際值': '#126186',
+                    '預測值': '#D500F9',
+                },
+            },
+            axis: {
+                x: {
+                    type: 'category',
+                    categories: ['1', '2', '3', '4', '5']
+                },
+                y: {
+                // Set the dynamic range for the Y-axis
+                min: 0,
+                max: maxValue+20,
+            },
+
+            }
+        });
+    }
+
+    function updateTable(selectedItem) {
+        const selectedTableData = tableData[selectedItem];
+
+        // 更新表格
+        const tableBody = document.getElementById('table-body');
+        tableBody.innerHTML = '';
+
+        selectedTableData.forEach(entry => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${entry.name}</td><td>${entry.quantity}</td>`;
+            tableBody.appendChild(row);
+        });
+    }
+
+    function updateTableAndChart() {
+        // const selectedItem = document.getElementById('item-selector').value;
+        // updateTable(selectedItem);
+        // drawChart(selectedItem);
+        const selectedItem = document.getElementById('item-selector').value;
+        const chartContainer = document.getElementById('chart');
+
+        if (selectedItem === 'item0') {
+            showTotalNeeds();
+           
+        } else {
+            updateTable(selectedItem);
+            chartContainer.style.display = 'block';
+            drawChart(selectedItem);  // 確保重新繪製圖表
+        }
+
+    
+    }
+
+
+    function showTotalNeeds() {
+    // Define total needs for each item
+    const totalNeeds = {
+        'BOPF茶葉': 10,
+        'GFBOP茶葉': 10,
+        'TW茶葉': 13,
+        'KT茶葉': 7,
+        'LN茶葉': 4,
+        '牛奶': 31,
+        '鮮奶油': 25,
+        '冰淇淋': 14,
+        '珍珠': 3
+    };
+
+    // Update the table with total needs
+    const tableBody = document.getElementById('table-body');
+    tableBody.innerHTML = '';
+
+    for (const [name, quantity] of Object.entries(totalNeeds)) {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${name}</td><td>${quantity}</td>`;
+        tableBody.appendChild(row);
+    }
+
+    drawBarChart(totalNeeds);
+    }
+
+        // 函数用于繪製柱狀圖
+    
+
+
+    // 初次載入頁面時繪製第一個品項的图表和表格
+    const initialItem = document.getElementById('item-selector').value;
+    updateTableAndChart();
+
+
+
+    function drawBarChart(data) {
+            // 將數據轉成 C3.js 需要的格式
+            const columns = Object.entries(data).map(([name, quantity]) => [name, quantity]);
+
+            // 使用 C3.js 創建柱状图
+            const chart = c3.generate({
+                bindto: '#chart', // 绑定到指定的元素
+                data: {
+                    columns: columns,
+                    type: 'bar',
+                },
+                axis: {
+                    x: {
+                        type: 'category',
+                        categories: Object.keys(data)
+                    }
+                }, 
+                color: {
+                    pattern: [
+                    'hsl(207, 50%, 80%)',
+                    'hsl(207, 50%, 60%)',
+                    'hsl(232, 50%, 80%)',
+                    'hsl(232, 50%, 60%)',
+                    'hsl(293, 50%, 60%)',
+                    'hsl(207, 50%, 40%)',
+                    'hsl(291, 50%, 40%)',
+                    'hsl(216, 50%, 60%)',
+                    'hsl(207, 50%, 20%)']
+                },
+            });
+        }
+
+</script>
+
+<script src="https://unpkg.com/c3@0.7.20/c3.js"></script>
+
+<!-- 選單的 -->
+<script>
+    let arrow = document.querySelectorAll(".arrow");
+    arrow.forEach(function(item){
+        item.addEventListener("click",(e)=>{
+            console.log(e);
+        let arrowParent = e.target.parentElement.parentElement;
+        console.log(arrowParent);;
+        arrowParent.classList.toggle("showMenu");
+        });
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+</body>
+</html>

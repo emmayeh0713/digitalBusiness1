@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <!-- 引入 DataTables 的 CSS 和 JavaScript 文件 -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.css"/>
+    <!-- Boxicons CSS -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>總部會員管理</title>
+    <style>
+       @import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Noto+Sans+TC:wght@500&family=Poppins:wght@300;400;500;600;700&display=swap');
+        *{
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: all .3s;
+            -webkit-box-sizing: border-box;
+            -webkit-transition: all .3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .sidebar{
+            position: fixed;
+            top: 0;
+            left:0;
+            height: 100%;
+            width: 240px;
+            color: aliceblue;
+            background-color: #003D79;
+        }
+
+        .sidebar .logo_details{
+            height: 80px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar .logo_details i{
+            font-size: 30px;
+            color: aliceblue;
+            height:30px;
+            min-width: 50px;
+            text-align: center;
+            line-height: 30px;
+        }
+
+        .sidebar .logo_details .logo_name{
+            font-size:18px;
+            color: aliceblue;
+            font-weight: 600;
+        }
+
+        .sidebar .nav_links{
+            height: 100%;
+            padding:30px 0 150px 0;
+            overflow: auto;
+        }
+
+        .sidebar .nav_links::-webkit-scrollbar{
+            display: none;
+        }
+
+
+        .sidebar .nav_links li{
+        position: relative;
+        list-style: none;
+        }
+
+        .sidebar .nav_links li:hover{
+            background-color: #0554a2;
+        }
+
+
+        .sidebar .nav_links li .icon_link{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+
+        .sidebar .nav_links li i{
+            font-size: 20px;
+            color: aliceblue;
+            height:50px;
+            min-width: 50px;
+            text-align: center;
+            line-height: 50px;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav_links li.showMenu i.arrow{
+        transform: rotate(-180deg);
+        }
+
+
+        .sidebar .nav_links li a{
+            display: flex;
+            align-items: center;
+            text-decoration: none;  
+        }
+
+        .sidebar .nav_links li a .link_name{
+            font-size:18px;
+            font-weight: 500;
+            color: aliceblue;
+        }
+
+        .sidebar .nav_links li .sub_menu{
+            padding: 6px 6px 14px 80px;
+            margin-top: -10px;
+            background:#0554a2;
+            display: none;
+        }
+
+
+        .sidebar.close .nav_links li .sub_menu{
+            position:absolute;
+            left: 100%;
+            top: -10;
+            margin-top: 0;
+            padding: 10px 20px;
+            border-radius: 0 6px 6px 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sidebar .nav_links li.showMenu .sub_menu{
+            display: block;
+        }
+
+
+        .sidebar.close .nav_links li:hover .sub_menu{
+            top: 0;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sidebar .nav_links li .sub_menu a{
+            color: aliceblue;
+            font-size: 15px;
+            padding: 5px 0;
+            white-space: nowrap;
+            opacity: 0.6;
+        }
+
+        .sidebar .nav_links li .sub_menu a:hover{
+            opacity: 1;
+        }
+
+        .sidebar .nav_links li .sub_menu .link_name{
+            display: none;
+        }
+
+        .sidebar.close .nav_links li .sub_menu .link_name{
+            font-size: 18px;
+            opacity: 1;
+            display:block;
+        }
+
+        .sidebar .nav_links li .sub_menu.blank{
+            opacity: 1;
+            pointer-events: auto;
+            padding:3px 20px 6px 16px;
+        }
+
+        .sidebar .nav_links li:hover .sub_menu.blank{
+            top: 50%;
+            transform: translate(-50%);
+        }
+
+        /* 預留給側邊選單的空間 */
+        .main-content {
+            margin-left: 260px;
+        }
+
+        .main-content h1{
+            margin-top: 1%;
+            font-size: 40px;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .content_table{
+            border-collapse: collapse;
+            margin: 20px 25px;
+            font-size: 0.9em;
+            min-width: 800px;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+        }
+
+        .content_table thead tr{
+            background-color:#001F3F;
+            color: #f2f2f2;
+            text-align: left;
+            font-weight:700;
+        }
+
+        .content_table th, .content_table td{
+            padding: 12px 15px;
+        }
+
+        .content_table tbody tr{
+            border-bottom: 1px solid #dddddd;
+            font-weight:500;
+        }
+
+        .content_table tbody tr:nth-of-type(even){
+            background-color: #f3f3f3;
+        }
+
+        .content_table tbody tr:last-of-type{
+            border-bottom: 2px solid #001F3F;
+        }
+
+
+        .chart_style{
+            max-width: 580px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .button{
+            background-color: #064686;
+            color: rgb(255, 255, 255);
+            font-size: 15px;
+            font-weight: 600;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 15px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
+        .button:hover{
+            background-color: #63a9ef;
+            color: rgb(19, 19, 19);
+        }
+    </style>
+</head>
+<body>
+    <!-- sidebar -->
+    <div class="sidebar">
+        <div class="logo_details">
+            <i class='bx bxs-drink'></i>
+            <span class="logo_name">約翰紅茶公司</span>
+        </div>
+        <ul class="nav_links">
+            <li>
+                <div class="icon_link">
+                    <a href="">
+                        <i class='bx bx-line-chart' ></i>
+                        <span class="link_name">銷售分析</span>
+                    </a>
+                    <i class='bx bx-chevron-down arrow ' ></i>
+                </div>
+                <ul class="sub_menu">
+                    <li><a href="">銷售量總額</a></li>
+                        <li><a href="/get/month">月銷售量總額</a></li>
+                        <li><a href="/get/month2">月銷售量分店</a></li>
+                    <li><a href="/get/season">季銷售量總額</a></li>
+                    <li><a href="/get/season2">季銷售量分店</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <div class="icon_link">
+                    <a href="">
+                        <i class='bx bxs-package' ></i>
+                        <span class="link_name">庫存管理</span>
+                    </a>
+                    <i class='bx bx-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub_menu">
+                    <li><a href="/forecastA">分店A預測原物料</a></li>
+                    <li><a href="/forecastB">分店B預測原物料</a></li>
+                    <li><a href="/forecastC">分店C預測原物料</a></li>
+                    <li><a href="/showIngredient1">分店A庫存量與進貨</a></li>
+                    <li><a href="/showIngredient2">分店B庫存量與進貨</a></li>
+                    <li><a href="/showIngredient3">分店C庫存量與進貨</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <div class="icon_link">
+                    <a href="#">
+                        <i class='bx bxs-pie-chart-alt-2' ></i>
+                        <span class="link_name">顧客分析</span>
+                    </a>
+                    <i class='bx bx-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub_menu">
+                    <li><a href="/get/member">總部會員管理</a></li>
+                    <li><a href="/get/clvA">分店A顧客分群</a></li>
+                    <li><a href="/get/clvB">分店B顧客分群</a></li>
+                    <li><a href="/get/clvC">分店C顧客分群</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <!-- sidebar end -->
+    
+    <section class="main-content">
+        <h1 id="branchTitle">會員管理-分店</h1>
+        <div class="button-container">
+            <button class="button" onclick="showPage('A')">分店A</button>
+            <button class="button" onclick="showPage('B')">分店B</button>
+            <button class="button" onclick="showPage('C')">分店C</button>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <table id="A" class="content_table  mx-auto">
+                        <!-- 頁面1的內容 -->
+                        <thead><tr><th>顧客ID</th><th>電話</th><th>Email</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td>926579267</td><td>fojiqgpndj@gmail.com</td></tr>
+                        <tr><td>2</td><td>5495322675</td><td>hficmzdekf@yahoo.com</td></tr>
+                        <tr><td>3</td><td>677431371</td><td>qxydjhgrfx@yahoo.com</td></tr>
+                        <tr><td>4</td><td>8988390281</td><td>mobgwtzkis@hotmail.com</td></tr>
+                        <tr><td>5</td><td>7121389386</td><td>zittjdnjrv@outlook.com</td></tr>
+                        <tr><td>6</td><td>9883438993</td><td>vcwrufdtvn@outlook.com</td></tr>
+                        <tr><td>7</td><td>890412764</td><td>hptxedarvw@yahoo.com</td></tr>
+                        <tr><td>8</td><td>5012845050</td><td>wslyzpaqyi@yahoo.com</td></tr>
+                        <tr><td>9</td><td>7911001076</td><td>eobhpbarkp@gmail.com</td></tr>
+                        <tr><td>10</td><td>8434357757</td><td>kxbmxyaobz@yahoo.com</td></tr>
+                        <tr><td>11</td><td>1537461105</td><td>bylrzaxwgl@hotmail.com</td></tr>
+                        <tr><td>12</td><td>212147657</td><td>hnolzgilbj@gmail.com</td></tr>
+                        <tr><td>13</td><td>7547980816</td><td>lqkpdrupqh@yahoo.com</td></tr>
+                        <tr><td>14</td><td>4821070486</td><td>xhsvyybzpm@yahoo.com</td></tr>
+                        <tr><td>15</td><td>6357759986</td><td>rbwhusjuis@hotmail.com</td></tr>
+                        <tr><td>16</td><td>8115172389</td><td>uqmxtnecec@yahoo.com</td></tr>
+                        <tr><td>17</td><td>5118860466</td><td>utgaboxdme@yahoo.com</td></tr>
+                        <tr><td>18</td><td>361806529</td><td>xkzbmbedhx@gmail.com</td></tr>
+                        <tr><td>19</td><td>4367475506</td><td>zgkgfbswcm@outlook.com</td></tr>
+                        <tr><td>20</td><td>6733997278</td><td>hogasmkvfx@hotmail.com</td></tr>
+                        <tr><td>21</td><td>9580763994</td><td>rlteobkjrt@hotmail.com</td></tr>
+                        <tr><td>22</td><td>9351526886</td><td>dwtasvxlwi@yahoo.com</td></tr>
+                        <tr><td>23</td><td>4709701517</td><td>covktwicuc@outlook.com</td></tr>
+                        <tr><td>24</td><td>615677305</td><td>yofbxsecbu@hotmail.com</td></tr>
+                        <tr><td>25</td><td>979159696</td><td>rooeucrzyg@yahoo.com</td></tr>
+                        <tr><td>26</td><td>4699304553</td><td>nfnnwfvedn@gmail.com</td></tr>
+                        <tr><td>27</td><td>5111060338</td><td>cvxvmktrjm@outlook.com</td></tr>
+                        <tr><td>28</td><td>6859301855</td><td>dozptspcba@gmail.com</td></tr>
+                        <tr><td>29</td><td>502190875</td><td>olbdadeeic@yahoo.com</td></tr>
+                        <tr><td>30</td><td>5794973358</td><td>qkejinpkgv@hotmail.com</td></tr>
+                        <tr><td>31</td><td>9497735568</td><td>meohzdpigb@yahoo.com</td></tr>
+                        <tr><td>32</td><td>5113415741</td><td>oslgcewfgr@hotmail.com</td></tr>
+                        <tr><td>33</td><td>2137060371</td><td>uhptbqlynl@gmail.com</td></tr>
+                        <tr><td>34</td><td>4188625631</td><td>vdwrrhvkbx@outlook.com</td></tr>
+                        <tr><td>35</td><td>2380686605</td><td>fqfzthvzbr@outlook.com</td></tr>
+                        <tr><td>36</td><td>4642965652</td><td>niwhydhycl@outlook.com</td></tr>
+                        <tr><td>37</td><td>91805618</td><td>jbblffdpik@gmail.com</td></tr>
+                        <tr><td>38</td><td>7219337405</td><td>ojtiytrnge@yahoo.com</td></tr>
+                        <tr><td>39</td><td>2110166068</td><td>ybxoqlupln@outlook.com</td></tr>
+                        <tr><td>40</td><td>1744081420</td><td>byduobkkyw@hotmail.com</td></tr>
+                        <tr><td>41</td><td>3682492567</td><td>bkkaawcace@hotmail.com</td></tr>
+                        <tr><td>42</td><td>9305987242</td><td>vjxpiupcya@hotmail.com</td></tr>
+                        <tr><td>43</td><td>2442280225</td><td>xqpksesbig@gmail.com</td></tr>
+                        <tr><td>44</td><td>1817550782</td><td>ynqlxktrqm@hotmail.com</td></tr>
+                        <tr><td>45</td><td>2906156136</td><td>pjqwsdikmq@gmail.com</td></tr>
+                        <tr><td>46</td><td>166069953</td><td>xhnwpjfdma@hotmail.com</td></tr>
+                        <tr><td>47</td><td>6954332667</td><td>1230644030</td></tr>
+                        <tr><td>48</td><td>4668350222</td><td>asrbcudzlu@outlook.com</td></tr>
+                        <tr><td>49</td><td>4724938391</td><td>oqfqkimjlr@gmail.com</td></tr>
+                        <tr><td>50</td><td>9233048925</td><td>zgivgewizs@hotmail.com</td></tr>
+                        <tr><td>51</td><td>5059113472</td><td>neiejanxqh@outlook.com</td></tr>
+                        <tr><td>52</td><td>7546989288</td><td>fgiaaqijpq@gmail.com</td></tr>
+                        <tr><td>53</td><td>7271719954</td><td>xyaushsoqz@hotmail.com</td></tr>
+                        <tr><td>54</td><td>8474813205</td><td>aqnaoszrqq@yahoo.com</td></tr>
+                        <tr><td>55</td><td>9191181177</td><td>twmoppibxk@yahoo.com</td></tr>
+                        <tr><td>56</td><td>5840345344</td><td>erymdxbsbi@gmail.com</td></tr>
+                        <tr><td>57</td><td>7313232568</td><td>arfmdwvvfs@outlook.com</td></tr>
+                        <tr><td>58</td><td>9196447631</td><td>jxgxmchivz@gmail.com</td></tr>
+                        <tr><td>59</td><td>7092175912</td><td>tpizvmvcwq@gmail.com</td></tr>
+                        <tr><td>60</td><td>9523103848</td><td>qzdnoepopc@hotmail.com</td></tr>
+                        <tr><td>61</td><td>996004673</td><td>kfgxsdmaon@yahoo.com</td></tr>
+                        <tr><td>62</td><td>4158362392</td><td>cmcwzycouh@yahoo.com</td></tr>
+                        <tr><td>63</td><td>5374876196</td><td>yzzqjtsdvi@yahoo.com</td></tr>
+                        <tr><td>64</td><td>1570119900</td><td>cqurgwfxfh@outlook.com</td></tr>
+                        <tr><td>65</td><td>1289438391</td><td>exgsixxdud@yahoo.com</td></tr>
+                        <tr><td>66</td><td>4321306993</td><td>ewrazwdrih@outlook.com</td></tr>
+                        <tr><td>67</td><td>6415361084</td><td>whwtzgqvfo@outlook.com</td></tr>
+                        <tr><td>68</td><td>1294634047</td><td>noyxjxlrlf@hotmail.com</td></tr>
+                        <tr><td>69</td><td>5358830926</td><td>yzaafmeget@hotmail.com</td></tr>
+                        <tr><td>70</td><td>6570286101</td><td>uzxmhfkiwu@yahoo.com</td></tr>
+                        <tr><td>71</td><td>9769497445</td><td>uvsbydsrvr@outlook.com</td></tr>
+                        <tr><td>72</td><td>5217326891</td><td>qsosxcdlnw@outlook.com</td></tr>
+                        <tr><td>73</td><td>5488025022</td><td>ooujjvytko@outlook.com</td></tr>
+                        <tr><td>74</td><td>6988072956</td><td>bvwmnwktoq@hotmail.com</td></tr>
+                        <tr><td>75</td><td>8511986631</td><td>cjksegeoiy@gmail.com</td></tr>
+                        <tr><td>76</td><td>3713655154</td><td>rujgazpzww@hotmail.com</td></tr>
+                        <tr><td>77</td><td>9668551845</td><td>qybujgblwp@hotmail.com</td></tr>
+                        <tr><td>78</td><td>6655010924</td><td>jeyolgzyqz@outlook.com</td></tr>
+                        <tr><td>79</td><td>6634347348</td><td>spuzcmlltu@yahoo.com</td></tr>
+                        <tr><td>80</td><td>1943472050</td><td>zfmclgxcor@gmail.com</td></tr>
+                        <tr><td>81</td><td>1044878835</td><td>jskihnvlpn@hotmail.com</td></tr>
+                        <tr><td>82</td><td>9353989881</td><td>mvxjnkqabq@hotmail.com</td></tr>
+                        <tr><td>83</td><td>9963314550</td><td>cdiyblthqw@gmail.com</td></tr>
+                        <tr><td>84</td><td>9838241221</td><td>uvvkhzjuzn@hotmail.com</td></tr>
+                        <tr><td>85</td><td>641788054</td><td>gzucfadzll@hotmail.com</td></tr>
+                        <tr><td>86</td><td>9121325474</td><td>scmzmqqegm@outlook.com</td></tr>
+                        <tr><td>87</td><td>7390602173</td><td>yddkonzrng@yahoo.com</td></tr>
+                        <tr><td>88</td><td>3609954069</td><td>ymjnsjkzfs@hotmail.com</td></tr>
+                        <tr><td>89</td><td>2685221293</td><td>gmwfmltibw@outlook.com</td></tr>
+                        <tr><td>90</td><td>8008770280</td><td>zrgsicdhea@hotmail.com</td></tr>
+                        <tr><td>91</td><td>5059113472</td><td>neiejanxqh@outlook.com</td></tr>
+                        <tr><td>92</td><td>7850164334</td><td>qybujgblwp@hotmail.com</td></tr>
+                        <tr><td>93</td><td>1550013897</td><td>jeyolgzyqz@outlook.com</td></tr>
+                        <tr><td>94</td><td>1967578181</td><td>spuzcmlltu@yahoo.com</td></tr>
+                        <tr><td>95</td><td>1499979853</td><td>zfmclgxcor@gmail.com</td></tr>
+                        <tr><td>96</td><td>8711341326</td><td>jskihnvlpn@hotmail.com</td></tr>
+                        <tr><td>97</td><td>129749557</td><td>mvxjnkqabq@hotmail.com</td></tr>
+                        <tr><td>98</td><td>5458490235</td><td>cdiyblthqw@gmail.com</td></tr>
+                        <tr><td>99</td><td>9959163993</td><td>uvvkhzjuzn@hotmail.com</td></tr>
+                        <tr><td>100</td><td>8390537110</td><td>gzucfadzll@hotmail.com</td></tr>
+                        <tr><td>101</td><td>2960332544</td><td>scmzmqqegm@outlook.com</td></tr>
+                        <tr><td>102</td><td>1349167002</td><td>yddkonzrng@yahoo.com</td></tr>
+                        <tr><td>103</td><td>1296392830</td><td>ymjnsjkzfs@hotmail.com</td></tr>
+                        <tr><td>104</td><td>1103031199</td><td>gmwfmltibw@outlook.com</td></tr>
+                        <tr><td>105</td><td>5972738985</td><td>zrgsicdhea@hotmail.com</td></tr>
+                        <tr><td>106</td><td>1167312430</td><td>neiejanxqh@outlook.com</td></tr>
+                        <tr><td>107</td><td>6961837016</td><td>awlynbwemw@gmail.com</td></tr>
+                        <tr><td>108</td><td>5592146093</td><td>ovrrbothpe@yahoo.com</td></tr>
+                        <tr><td>109</td><td>6461651496</td><td>qonxreolwq@outlook.com</td></tr>
+                        <tr><td>110</td><td>6235700283</td><td>nuspkkexnz@hotmail.com</td></tr>
+                        <tr><td>111</td><td>125525158</td><td>iutylnhaav@yahoo.com</td></tr>
+                        <tr><td>112</td><td>1464059510</td><td>bcupjtkckq@hotmail.com</td></tr>
+                        <tr><td>113</td><td>5172513685</td><td>inlkxcclbo@yahoo.com</td></tr>
+                        <tr><td>114</td><td>4853481000</td><td>dmvgrnnjkl@gmail.com</td></tr>
+                        <tr><td>115</td><td>244494067</td><td>ieitfhwxhm@outlook.com</td></tr>
+                        <tr><td>116</td><td>7044727683</td><td>xioyaadtsr@hotmail.com</td></tr>
+                        <tr><td>117</td><td>8962692037</td><td>yrtyunkgtf@hotmail.com</td></tr>
+                        <tr><td>118</td><td>1368939641</td><td>kiqnobqwkh@hotmail.com</td></tr>
+                        <tr><td>119</td><td>2069405513</td><td>mnxgdkzvau@yahoo.com</td></tr>
+                        <tr><td>120</td><td>5656381482</td><td>lbqutclmoj@yahoo.com</td></tr>
+                        <tr><td>121</td><td>9809285236</td><td>lnihrwbtwp@hotmail.com</td></tr>
+                        <tr><td>122</td><td>5792397678</td><td>lhsnwcbrnk@gmail.com</td></tr>
+                        <tr><td>123</td><td>9050706799</td><td>tfhkwkzmvi@gmail.com</td></tr>
+                        <tr><td>124</td><td>809375053</td><td>fpxziksuee@yahoo.com</td></tr>
+                        <tr><td>125</td><td>798751826</td><td>ywgnchsjih@gmail.com</td></tr>
+                        <tr><td>126</td><td>9671848726</td><td>neytfbglsl@outlook.com</td></tr>
+                        <tr><td>127</td><td>4908768290</td><td>wcilurrwvr@gmail.com</td></tr>
+                        <tr><td>128</td><td>1006619453</td><td>nzeabdcbbg@gmail.com</td></tr>
+                        <tr><td>129</td><td>4811267683</td><td>wabqwjqlqk@outlook.com</td></tr>
+                        <tr><td>130</td><td>7232920707</td><td>pgehnkyzib@hotmail.com</td></tr>
+                        <tr><td>131</td><td>883940917</td><td>qesqfvbtda@hotmail.com</td></tr>
+                        <tr><td>132</td><td>8683640606</td><td>jlyhiizuea@yahoo.com</td></tr>
+                        <tr><td>133</td><td>3779602903</td><td>lybbsxsxub@hotmail.com</td></tr>
+                        <tr><td>134</td><td>7600773212</td><td>nyerrwtipe@gmail.com</td></tr>
+                        <tr><td>135</td><td>4735377423</td><td>ziifzttlzw@gmail.com</td></tr>
+                        <tr><td>136</td><td>1289271298</td><td>kihjkvxzal@gmail.com</td></tr>
+                        <tr><td>137</td><td>6959103675</td><td>muphvfqjtk@outlook.com</td></tr>
+                        <tr><td>138</td><td>720940479</td><td>pirgugpzod@gmail.com</td></tr>
+                        <tr><td>139</td><td>8589555484</td><td>zgyceqhmnf@gmail.com</td></tr>
+                        <tr><td>140</td><td>424652592</td><td>ioljcvvbzm@gmail.com</td></tr>
+                        <tr><td>141</td><td>6079660352</td><td>mrnralvsan@hotmail.com</td></tr>
+                        <tr><td>142</td><td>5590121288</td><td>cqrfjitdhx@yahoo.com</td></tr>
+                        <tr><td>143</td><td>4213063494</td><td>dlsriuflnj@yahoo.com</td></tr>
+                        <tr><td>144</td><td>9522295316</td><td>nyyyvzsvrl@outlook.com</td></tr>
+                        <tr><td>145</td><td>8529219850</td><td>lifgeahrry@hotmail.com</td></tr>
+                        <tr><td>146</td><td>3722175130</td><td>elmihnafnk@hotmail.com</td></tr>
+                        <tr><td>147</td><td>8349779334</td><td>oiutqjoihy@hotmail.com</td></tr>
+                        <tr><td>148</td><td>9743540237</td><td>dyqkrboagl@outlook.com</td></tr>
+                        <tr><td>149</td><td>8800717007</td><td>rwsjaeaqjy@yahoo.com</td></tr>
+                        <tr><td>150</td><td>3162229578</td><td>qxamkjaehs@outlook.com</td></tr>
+                        <tr><td>151</td><td>447126386</td><td>xltqhqeyno@yahoo.com</td></tr>
+                        <tr><td>152</td><td>1654721371</td><td>htbgylbztl@gmail.com</td></tr>
+                        <tr><td>153</td><td>2106073027</td><td>jxxdjncjsv@gmail.com</td></tr>
+                        <tr><td>154</td><td>4683647151</td><td>ycriuihalb@hotmail.com</td></tr>
+                        <tr><td>155</td><td>3619376342</td><td>gwjljrsnvh@gmail.com</td></tr>
+                        <tr><td>156</td><td>2051664518</td><td>tcifghhgcf@yahoo.com</td></tr>
+                        <tr><td>157</td><td>9252131614</td><td>jrvjmsnosb@outlook.com</td></tr>
+                        <tr><td>158</td><td>7786190313</td><td>zvxawnddck@gmail.com</td></tr>
+                        <tr><td>159</td><td>328051600</td><td>pextzjajwr@outlook.com</td></tr>
+                        <tr><td>160</td><td>2825477422</td><td>fvdbuomujz@yahoo.com</td></tr>
+                        <tr><td>161</td><td>9252131614</td><td>rcrvpwwzil@hotmail.com</td></tr>
+                        <tr><td>162</td><td>3542847623</td><td>lhausbffxd@outlook.com</td></tr>
+                        <tr><td>163</td><td>7351780220</td><td>vdnebicuhs@yahoo.com</td></tr>
+                        <tr><td>164</td><td>595468378</td><td>mpruwumbtf@gmail.com</td></tr>
+                        <tr><td>165</td><td>2813205681</td><td>sdwfdgonbq@gmail.com</td></tr>
+                        <tr><td>166</td><td>8952658490</td><td>trfmcvhtmz@yahoo.com</td></tr>
+                        <tr><td>167</td><td>5416244121</td><td>ppohrbqaph@hotmail.com</td></tr>
+                        <tr><td>168</td><td>286463613</td><td>fejmhqgtzm@yahoo.com</td></tr>
+                        <tr><td>169</td><td>4383915253</td><td>vkipbtszed@gmail.com</td></tr>
+                        <tr><td>170</td><td>3073154909</td><td>vzibuxxfht@outlook.com</td></tr>
+                        <tr><td>171</td><td>1091841694</td><td>ixzawcyofe@hotmail.com</td></tr>
+                        <tr><td>172</td><td>3979384099</td><td>uywseqnmdx@gmail.com</td></tr>
+                        <tr><td>173</td><td>7503543901</td><td>bjuptkxcka@yahoo.com</td></tr>
+                        <tr><td>174</td><td>4046942649</td><td>wysuqiqoak@yahoo.com</td></tr>
+                        <tr><td>175</td><td>9568415021</td><td>vwxsbacfig@gmail.com</td></tr>
+                        <tr><td>176</td><td>4735764203</td><td>cxyparbems@gmail.com</td></tr>
+                        <tr><td>177</td><td>9303363286</td><td>oizhpvhhfg@yahoo.com</td></tr>
+                        <tr><td>178</td><td>8611368171</td><td>drxdvccttn@outlook.com</td></tr>
+                        <tr><td>179</td><td>25512802</td><td>lgektmqpnd@outlook.com</td></tr>
+                        <tr><td>180</td><td>2468626825</td><td>jcavgunuju@hotmail.com</td></tr>
+                        <tr><td>181</td><td>3534415844</td><td>rbunpkvilt@hotmail.com</td></tr>
+                        <tr><td>182</td><td>9223188443</td><td>vcuyodbklz@yahoo.com</td></tr>
+                        <tr><td>183</td><td>5067617159</td><td>koczpkxuhu@gmail.com</td></tr>
+                        <tr><td>184</td><td>272866268</td><td>bvtayjzzhi@yahoo.com</td></tr>
+                        <tr><td>185</td><td>2114260856</td><td>exazszcxln@hotmail.com</td></tr>
+                        <tr><td>186</td><td>8889024233</td><td>chsemvvxad@yahoo.com</td></tr>
+                        <tr><td>187</td><td>7565983185</td><td>prdzaafpvm@hotmail.com</td></tr>
+                        <tr><td>188</td><td>4827740157</td><td>wknnsveqad@gmail.com</td></tr>
+                        <tr><td>189</td><td>1756695116</td><td>aytasytmbu@hotmail.com</td></tr>
+                        <tr><td>190</td><td>1989423471</td><td>jmdpbkluha@gmail.com</td></tr>
+                        <tr><td>191</td><td>6130448066</td><td>cdcpacpdtn@yahoo.com</td></tr>
+                        <tr><td>192</td><td>9928645113</td><td>thnxxjelba@outlook.com</td></tr>
+                        <tr><td>193</td><td>1914578886</td><td>uuasmmhwfv@gmail.com</td></tr>
+                        <tr><td>194</td><td>6844067616</td><td>wyrcpzzjeu@gmail.com</td></tr>
+                        <tr><td>195</td><td>3241740124</td><td>lcgkpyiish@hotmail.com</td></tr>
+                        <tr><td>196</td><td>6468371707</td><td>ymjgdmtlml@outlook.com</td></tr>
+                        <tr><td>197</td><td>2109352196</td><td>yysabhybhi@gmail.com</td></tr>
+                        <tr><td>198</td><td>4953314996</td><td>bsogzpucqu@gmail.com</td></tr>
+                        <tr><td>199</td><td>9338055040</td><td>pkuhbsvwyn@yahoo.com</td></tr>
+                        <tr><td>200</td><td>6076274684</td><td>efxnurrxel@outlook.com</td></tr>
+                        <tr><td>201</td><td>3920978250</td><td>tlnommnvbm@yahoo.com</td></tr>
+                        <tr><td>202</td><td>8064977640</td><td>yyfkhtxpok@outlook.com</td></tr>
+                        <tr><td>203</td><td>4553945270</td><td>taejanhxyh@hotmail.com</td></tr>
+                        <tr><td>204</td><td>9429875690</td><td>silpxwtcjw@yahoo.com</td></tr>
+                        <tr><td>205</td><td>274284685</td><td>reusxjjxdm@hotmail.com</td></tr>
+                        <tr><td>206</td><td>6110770745</td><td>xfspypgmnu@outlook.com</td></tr>
+                        <tr><td>207</td><td>1013970829</td><td>mtvttquacz@gmail.com</td></tr>
+                        <tr><td>208</td><td>7119115363</td><td>adruffxxzh@outlook.com</td></tr>
+                        <tr><td>209</td><td>1534452762</td><td>rszfgsdtas@outlook.com</td></tr>
+                        <tr><td>210</td><td>3512616744</td><td>kdqcxnfqxy@outlook.com</td></tr>
+                        <tr><td>211</td><td>4114607255</td><td>nskcuggutn@hotmail.com</td></tr>
+                        <tr><td>212</td><td>5986589230</td><td>pmcpvyvpwn@hotmail.com</td></tr>
+                        <tr><td>213</td><td>6131621085</td><td>ozhnoluoqb@outlook.com</td></tr>
+                        <tr><td>214</td><td>3876321496</td><td>kfoxbyxpsc@gmail.com</td></tr>
+                        <tr><td>215</td><td>3981861280</td><td>bnperobjqa@gmail.com</td></tr>
+                        <tr><td>216</td><td>4022211901</td><td>ikkiiqwhcp@outlook.com</td></tr>
+                        <tr><td>217</td><td>1597392123</td><td>lwhomqurwi@gmail.com</td></tr>
+                        <tr><td>218</td><td>6352639076</td><td>jekkojvspq@outlook.com</td></tr>
+                        <tr><td>219</td><td>8379197254</td><td>piplkjrrlz@outlook.com</td></tr>
+                        <tr><td>220</td><td>9604584197</td><td>ttutogvdtl@yahoo.com</td></tr>
+                        <tr><td>221</td><td>2810966970</td><td>ojcsubvlqv@yahoo.com</td></tr>
+                        <tr><td>222</td><td>6246533213</td><td>bfyapwgfie@gmail.com</td></tr>
+                        <tr><td>223</td><td>8134780921</td><td>gbiubtruwq@outlook.com</td></tr>
+                        <tr><td>224</td><td>1133218616</td><td>hfangvqjke@hotmail.com</td></tr>
+                        <tr><td>225</td><td>3271289097</td><td>ydhfwaclud@hotmail.com</td></tr>
+                        <tr><td>226</td><td>8426622168</td><td>lyjmqzqike@yahoo.com</td></tr>
+                        <tr><td>227</td><td>3053214441</td><td>kfooetzebc@gmail.com</td></tr>
+                        <tr><td>228</td><td>7261121217</td><td>bjxawkrurl@outlook.com</td></tr>
+                        <tr><td>229</td><td>6477758615</td><td>frrntdnqeh@outlook.com</td></tr>
+                        <tr><td>230</td><td>9294827977</td><td>nhnktcrhii@hotmail.com</td></tr>
+                        <tr><td>231</td><td>5866337701</td><td>rfcyeeyyjh@gmail.com</td></tr>
+                        <tr><td>232</td><td>5171655027</td><td>ugmtzvztnl@outlook.com</td></tr>
+                        <tr><td>233</td><td>6830279921</td><td>fhuybbfzux@gmail.com</td></tr>
+                        <tr><td>234</td><td>2751302167</td><td>wedvwghank@gmail.com</td></tr>
+                        <tr><td>235</td><td>605650362</td><td>geqfwzloke@hotmail.com</td></tr>
+                        <tr><td>236</td><td>8533011532</td><td>mlzggkteda@yahoo.com</td></tr>
+                        <tr><td>237</td><td>936494373</td><td>wgweczumbz@yahoo.com</td></tr>
+                        <tr><td>238</td><td>4454945083</td><td>qzakfhawag@hotmail.com</td></tr>
+                        <tr><td>239</td><td>5882443830</td><td>heqozdwtlf@hotmail.com</td></tr>
+                        <tr><td>240</td><td>118584738</td><td>wyquvtvqvz@yahoo.com</td></tr>
+                        <tr><td>241</td><td>8031143822</td><td>eqikfscgab@hotmail.com</td></tr>
+                        <tr><td>242</td><td>937025110</td><td>qfsxfhzsvl@outlook.com</td></tr>
+                        <tr><td>243</td><td>225647148</td><td>zyjchknrrl@gmail.com</td></tr>
+                        <tr><td>244</td><td>5284348391</td><td>ojhkmelbcp@outlook.com</td></tr>
+                        <tr><td>245</td><td>3229997043</td><td>mmeyenqpia@yahoo.com</td></tr>
+                        <tr><td>246</td><td>20015180</td><td>fhloervmmf@hotmail.com</td></tr>
+                        <tr><td>247</td><td>2912390839</td><td>nzoqpfedgd@hotmail.com</td></tr>
+                        <tr><td>248</td><td>5943427503</td><td>cobvynlhgj@yahoo.com</td></tr>
+                        <tr><td>249</td><td>5736736151</td><td>ziaqbvkcdh@hotmail.com</td></tr>
+                        <tr><td>250</td><td>1374371644</td><td>fzhkmzgibi@yahoo.com</td></tr>
+                        <tr><td>251</td><td>9342888271</td><td>icqlxkdiav@gmail.com</td></tr>
+                        <tr><td>252</td><td>3425861150</td><td>bcdnpcikrv@yahoo.com</td></tr>
+                        <tr><td>253</td><td>6201592174</td><td>zhlmladidr@gmail.com</td></tr>
+                        <tr><td>254</td><td>7658906734</td><td>blomimoahx@gmail.com</td></tr>
+                        <tr><td>255</td><td>918627233</td><td>qovnfiqfxi@yahoo.com</td></tr>
+                        </tbody>
+                        <!-- 這裡放入第一頁的資料 -->
+                    </table>
+                    <table id="B" class="content_table mx-auto" style="display: none;">
+                        <!-- 頁面2的內容 -->
+                        <thead><tr><th>顧客ID</th><th>電話</th><th>Email</th></tr></thead>
+                        <tbody> 
+                            <tr><td>1</td><td>9399420358</td><td>ennkgygnfp@outlook.com</td></tr>
+                            <tr><td>2</td><td>1472450582</td><td>gfqqvtpxdl@outlook.com</td></tr>
+                            <tr><td>3</td><td>251732120</td><td>zkoosozzzr@gmail.com</td></tr>
+                            <tr><td>4</td><td>7737773784</td><td>jbnviunjsu@hotmail.com</td></tr>
+                            <tr><td>5</td><td>8685492602</td><td>goytrxhjrr@gmail.com</td></tr>
+                            <tr><td>6</td><td>1316822933</td><td>yfglszfvtg@hotmail.com</td></tr>
+                            <tr><td>7</td><td>6641650048</td><td>xnpqvjtsdl@hotmail.com</td></tr>
+                            <tr><td>8</td><td>6605991433</td><td>nhergzpapb@yahoo.com</td></tr>
+                            <tr><td>9</td><td>7894808427</td><td>rgqrkmbgdm@hotmail.com</td></tr>
+                            <tr><td>10</td><td>9928645113</td><td>thnxxjelba@outlook.com</td></tr>
+                            <tr><td>11</td><td>8881025407</td><td>octvioivnn@gmail.com</td></tr>
+                            <tr><td>12</td><td>61475807</td><td>ldgtsmkyhm@hotmail.com</td></tr>
+                            <tr><td>13</td><td>7184311567</td><td>nsofcolevi@yahoo.com</td></tr>
+                            <tr><td>14</td><td>5336345605</td><td>nrpyesgnvj@outlook.com</td></tr>
+                            <tr><td>15</td><td>7272641571</td><td>oafnijueun@yahoo.com</td></tr>
+                            <tr><td>16</td><td>6136433342</td><td>kgawsijuwf@outlook.com</td></tr>
+                            <tr><td>17</td><td>8832283582</td><td>wrmtcuewnh@yahoo.com</td></tr>
+                            <tr><td>18</td><td>696130450</td><td>kdqymweoke@hotmail.com</td></tr>
+                            <tr><td>19</td><td>8126645556</td><td>fqgxiflxhp@gmail.com</td></tr>
+                            <tr><td>20</td><td>3310567561</td><td>aunfvqpdgf@outlook.com</td></tr>
+                            <tr><td>21</td><td>3980136807</td><td>jercpsjfon@hotmail.com</td></tr>
+                            <tr><td>22</td><td>1611445520</td><td>eskquuwicz@outlook.com</td></tr>
+                            <tr><td>23</td><td>1044566044</td><td>rixouhbiao@gmail.com</td></tr>
+                            <tr><td>24</td><td>7858093898</td><td>xwjvzoacxf@outlook.com</td></tr>
+                            <tr><td>25</td><td>3108197127</td><td>ulsnhfdndp@gmail.com</td></tr>
+                            <tr><td>26</td><td>8954992380</td><td>wmqavstykr@outlook.com</td></tr>
+                            <tr><td>27</td><td>1658646274</td><td>frgiadmhhz@gmail.com</td></tr>
+                            <tr><td>28</td><td>8318937731</td><td>gbqvnkeapq@outlook.com</td></tr>
+                            <tr><td>29</td><td>7961550149</td><td>yzsglklvom@gmail.com</td></tr>
+                            <tr><td>30</td><td>3648694058</td><td>lhntpqbncs@gmail.com</td></tr>
+                            <tr><td>31</td><td>4889061727</td><td>docbkqaxfm@gmail.com</td></tr>
+                            <tr><td>32</td><td>2682511315</td><td>bocwktazov@outlook.com</td></tr>
+                            <tr><td>33</td><td>7895699001</td><td>zxniwzuhjd@yahoo.com</td></tr>
+                            <tr><td>34</td><td>9342888271</td><td>icqlxkdiav@gmail.com</td></tr>
+                            <tr><td>35</td><td>4854977842</td><td>uljfkfcajs@hotmail.com</td></tr>
+                            <tr><td>36</td><td>63661248</td><td>nhrpcztinv@hotmail.com</td></tr>
+                            <tr><td>37</td><td>6439906596</td><td>wukgjobhns@yahoo.com</td></tr>
+                            <tr><td>38</td><td>2857527795</td><td>apnmzpdjlr@outlook.com</td></tr>
+                            <tr><td>39</td><td>8374554511</td><td>lejbrcwloq@outlook.com</td></tr>
+                            <tr><td>40</td><td>4359154994</td><td>mqfcafnvgz@yahoo.com</td></tr>
+                            <tr><td>41</td><td>6316821733</td><td>hkpnldkqes@yahoo.com</td></tr>
+                            <tr><td>42</td><td>9873256184</td><td>ltidvmkwro@hotmail.com</td></tr>
+                            <tr><td>43</td><td>2818660859</td><td>ujplsqjdwr@yahoo.com</td></tr>
+                            <tr><td>44</td><td>7517061923</td><td>dnpopwonss@hotmail.com</td></tr>
+                            <tr><td>45</td><td>6214436996</td><td>wzqedpnyop@outlook.com</td></tr>
+                            <tr><td>46</td><td>1082249023</td><td>qrtcidbgix@hotmail.com</td></tr>
+                            <tr><td>47</td><td>4876115150</td><td>fhxuzjnobt@outlook.com</td></tr>
+                            <tr><td>48</td><td>8293450850</td><td>bfdlkplspu@yahoo.com</td></tr>
+                            <tr><td>49</td><td>712160476</td><td>ugiwmlidko@gmail.com</td></tr>
+                            <tr><td>50</td><td>1940201632</td><td>htzttrcpvj@hotmail.com</td></tr>
+                            <tr><td>51</td><td>6045952482</td><td>uvucbtacer@hotmail.com</td></tr>
+                            <tr><td>52</td><td>361068473</td><td>khdkgnaslz@gmail.com</td></tr>
+                            <tr><td>53</td><td>236296233</td><td>exgkckligb@outlook.com</td></tr>
+                            <tr><td>54</td><td>6528843140</td><td>bfatfgoizn@gmail.com</td></tr>
+                            <tr><td>55</td><td>9669100493</td><td>bozdqrvqyt@gmail.com</td></tr>
+                            <tr><td>56</td><td>3062794364</td><td>dtvqgtbwbr@outlook.com</td></tr>
+                            <tr><td>57</td><td>1027159949</td><td>qbyvnskael@hotmail.com</td></tr>
+                            <tr><td>58</td><td>1244905273</td><td>ccioucoxrn@outlook.com</td></tr>
+                            <tr><td>59</td><td>8084081777</td><td>xvqusxhenk@outlook.com</td></tr>
+                            <tr><td>60</td><td>2632682448</td><td>zllzqqvevd@hotmail.com</td></tr>
+                            <tr><td>61</td><td>2317303938</td><td>saveobskuf@hotmail.com</td></tr>
+                            <tr><td>62</td><td>4971195418</td><td>bnbpiukztu@hotmail.com</td></tr>
+                            <tr><td>63</td><td>2247710035</td><td>qsxxdhxdyb@yahoo.com</td></tr>
+                            <tr><td>64</td><td>5290670565</td><td>injangqxvd@yahoo.com</td></tr>
+                            <tr><td>65</td><td>5474642433</td><td>owpyqcgkvw@outlook.com</td></tr>
+                            <tr><td>66</td><td>3554333227</td><td>wpgefmuilk@yahoo.com</td></tr>
+                            <tr><td>67</td><td>7192318085</td><td>xuxapbmxgr@hotmail.com</td></tr>
+                            <tr><td>68</td><td>9772350697</td><td>frlfnshnms@hotmail.com</td></tr>
+                            <tr><td>69</td><td>3141377951</td><td>eqyknhwfnp@yahoo.com</td></tr>
+                            <tr><td>70</td><td>6872743646</td><td>gzndvocouv@hotmail.com</td></tr>
+                            <tr><td>71</td><td>9835793298</td><td>ucxofibikv@hotmail.com</td></tr>
+                            <tr><td>72</td><td>3382940048</td><td>kpztjekzgb@yahoo.com</td></tr>
+                            <tr><td>73</td><td>5183628744</td><td>aijqadtoaw@yahoo.com</td></tr>
+                            <tr><td>74</td><td>8224559338</td><td>dmcobbgoxd@hotmail.com</td></tr>
+                            <tr><td>75</td><td>444625330</td><td>opoefmtcwj@outlook.com</td></tr>
+                            <tr><td>76</td><td>4708558731</td><td>bxhlhjfexx@gmail.com</td></tr>
+                            <tr><td>77</td><td>9428905627</td><td>lqxzapkbrc@yahoo.com</td></tr>
+                            <tr><td>78</td><td>2958659032</td><td>lyrlehevio@gmail.com</td></tr>
+                            <tr><td>79</td><td>1655452499</td><td>ykhzhpxdnd@gmail.com</td></tr>
+                            <tr><td>80</td><td>7447450438</td><td>fbsbvavygi@outlook.com</td></tr>
+                            <tr><td>81</td><td>6669079187</td><td>lutfcihlut@yahoo.com</td></tr>
+                            <tr><td>82</td><td>7849922356</td><td>ansxksrlzd@gmail.com</td></tr>
+                            <tr><td>83</td><td>8583138264</td><td>kokxinfajb@outlook.com</td></tr>
+                            <tr><td>84</td><td>1733156720</td><td>fzxbrdbegi@outlook.com</td></tr>
+                            <tr><td>85</td><td>2433196472</td><td>hzukrvfgdg@outlook.com</td></tr>
+                            <tr><td>86</td><td>3877766441</td><td>jrmjkagiqx@gmail.com</td></tr>
+                            <tr><td>87</td><td>6527276743</td><td>svfrjuxrsx@gmail.com</td></tr>
+                            <tr><td>88</td><td>332663931</td><td>dlrabggbmw@gmail.com</td></tr>
+                            <tr><td>89</td><td>7539904704</td><td>pfbviprsfl@gmail.com</td></tr>
+                            <tr><td>90</td><td>1662158174</td><td>xsfaihakzm@gmail.com</td></tr>
+                            <tr><td>91</td><td>4657355485</td><td>hwdachrnqy@outlook.com</td></tr>
+                            <tr><td>92</td><td>9839848216</td><td>kxurkinfwx@yahoo.com</td></tr>
+                            <tr><td>93</td><td>9854158535</td><td>vcawqryvzk@gmail.com</td></tr>
+                            <tr><td>94</td><td>8664945351</td><td>olkykavnsw@yahoo.com</td></tr>
+                            <tr><td>95</td><td>916353037</td><td>niznqngtny@hotmail.com</td></tr>
+                            <tr><td>96</td><td>7492852501</td><td>djdthujshs@yahoo.com</td></tr>
+                            <tr><td>97</td><td>8060780383</td><td>ytkougktbc@gmail.com</td></tr>
+                            <tr><td>98</td><td>5038618297</td><td>sshabhnggf@outlook.com</td></tr>
+                            <tr><td>99</td><td>407199580</td><td>bonohguajw@gmail.com</td></tr>
+                            <tr><td>100</td><td>7656618834</td><td>pemhmgrwkx@yahoo.com</td></tr>
+                            <tr><td>101</td><td>6260124704</td><td>nmqblmhqdl@gmail.com</td></tr>
+                            <tr><td>102</td><td>8288958164</td><td>yeoahbyjnn@hotmail.com</td></tr>
+                            <tr><td>103</td><td>5379870473</td><td>adowniuppi@hotmail.com</td></tr>
+                            <tr><td>104</td><td>3891839904</td><td>pmdcrgeseo@gmail.com</td></tr>
+                            <tr><td>105</td><td>2142567226</td><td>sxiaqisvco@yahoo.com</td></tr>
+                            <tr><td>106</td><td>6232536076</td><td>ereaosrypx@outlook.com</td></tr>
+                            <tr><td>107</td><td>4416806673</td><td>vvsmbgdhro@yahoo.com</td></tr>
+                            <tr><td>108</td><td>3068056811</td><td>pyeaijamhb@gmail.com</td></tr>
+                            <tr><td>109</td><td>9264643195</td><td>nmlrolykul@outlook.com</td></tr>
+                            <tr><td>110</td><td>4539949501</td><td>eongunjnno@gmail.com</td></tr>
+                            <tr><td>111</td><td>8467563945</td><td>wocmjbwzmj@yahoo.com</td></tr>
+                            <tr><td>112</td><td>7244842187</td><td>uxnriizlji@gmail.com</td></tr>
+                            <tr><td>113</td><td>4925336581</td><td>rvivifouzs@gmail.com</td></tr>
+                            <tr><td>114</td><td>1581047039</td><td>iaumgywwob@gmail.com</td></tr>
+                            <tr><td>115</td><td>3579512376</td><td>tayhyqmwmq@outlook.com</td></tr>
+                            <tr><td>116</td><td>5681010257</td><td>tjjnfdpcks@yahoo.com</td></tr>
+                            <tr><td>117</td><td>5391252562</td><td>yffsfjwxgu@yahoo.com</td></tr>
+                            <tr><td>118</td><td>6178146686</td><td>cwclfbstvj@hotmail.com</td></tr>
+                            <tr><td>119</td><td>5353459628</td><td>ufqqeqoior@gmail.com</td></tr>
+                            <tr><td>120</td><td>3099439579</td><td>wkunyhzteq@gmail.com</td></tr>
+                            <tr><td>121</td><td>1021492474</td><td>wlkvbjuzsm@hotmail.com</td></tr>
+                            <tr><td>122</td><td>3229229518</td><td>kfelofhlsw@outlook.com</td></tr>
+                            <tr><td>123</td><td>2766048670</td><td>lyofsbtlrv@yahoo.com</td></tr>
+                            <tr><td>124</td><td>9555104159</td><td>uaduoukufo@gmail.com</td></tr>
+                            <tr><td>125</td><td>9192028242</td><td>tdhsbayyvc@outlook.com</td></tr>
+                            <tr><td>126</td><td>2995930851</td><td>oplznkmkcl@hotmail.com</td></tr>
+                            <tr><td>127</td><td>2704674486</td><td>mhcddbexrt@yahoo.com</td></tr>
+                            <tr><td>128</td><td>5593560988</td><td>tcmnswmxww@yahoo.com</td></tr>
+                            <tr><td>129</td><td>167418403</td><td>xzaywbzgaw@outlook.com</td></tr>
+                            <tr><td>130</td><td>1426514391</td><td>vkgapraszf@gmail.com</td></tr>
+                            <tr><td>131</td><td>4411248437</td><td>jricwlarju@outlook.com</td></tr>
+                            <tr><td>132</td><td>4667297820</td><td>bbsqrdikka@yahoo.com</td></tr>
+                            <tr><td>133</td><td>8580547364</td><td>jiogkgdshw@yahoo.com</td></tr>
+                            <tr><td>134</td><td>4762028013</td><td>bjrqxlersu@outlook.com</td></tr>
+                            <tr><td>135</td><td>9324268781</td><td>rbwihivqwl@outlook.com</td></tr>
+                            <tr><td>136</td><td>7888897525</td><td>ztdssxrbmw@outlook.com</td></tr>
+                            <tr><td>137</td><td>350111707</td><td>bdjzetjtuv@yahoo.com</td></tr>
+                            <tr><td>138</td><td>5867117577</td><td>eybprysoug@hotmail.com</td></tr>
+                            <tr><td>139</td><td>5817234516</td><td>ccpbupjuyq@hotmail.com</td></tr>
+                            <tr><td>140</td><td>8110906513</td><td>ialwcaxicf@yahoo.com</td></tr>
+                            <tr><td>141</td><td>9987398676</td><td>wzllmslvby@yahoo.com</td></tr>
+                            <tr><td>142</td><td>6875385035</td><td>nxqfkbxjjd@outlook.com</td></tr>
+                            <tr><td>143</td><td>7159718662</td><td>xiszvpbzca@gmail.com</td></tr>
+                            <tr><td>144</td><td>3951265539</td><td>rnabelvrse@hotmail.com</td></tr>
+                            <tr><td>145</td><td>200775348</td><td>qlvhjxuaxf@yahoo.com</td></tr>
+                            <tr><td>146</td><td>8273609030</td><td>xgaqytzvob@hotmail.com</td></tr>
+                            <tr><td>147</td><td>1430669448</td><td>zuvvgrmyyn@yahoo.com</td></tr>
+                            <tr><td>148</td><td>1907525280</td><td>clgbewbwnu@hotmail.com</td></tr>
+                            <tr><td>149</td><td>4242343647</td><td>vowlnjvsyg@outlook.com</td></tr>
+                            <tr><td>150</td><td>4968435538</td><td>rgczsfoyib@gmail.com</td></tr>
+                            <tr><td>151</td><td>500000091</td><td>xlhoetciqc@gmail.com</td></tr>
+                            <tr><td>152</td><td>1545959844</td><td>avbwhkkpsj@hotmail.com</td></tr>
+                            <tr><td>153</td><td>741346478</td><td>ivawsujrll@outlook.com</td></tr>
+                            <tr><td>154</td><td>1418807422</td><td>yymtwxqpsx@outlook.com</td></tr>
+                            <tr><td>155</td><td>569076813</td><td>xrcawhvila@yahoo.com</td></tr>
+                            <tr><td>156</td><td>258238945</td><td>pnulgcegqq@yahoo.com</td></tr>
+                            <tr><td>157</td><td>9966084959</td><td>tvktyrvkqc@gmail.com</td></tr>
+                            <tr><td>158</td><td>3839515479</td><td>xhbkhextlp@hotmail.com</td></tr>
+                            <tr><td>159</td><td>6611183682</td><td>mfewrjneek@hotmail.com</td></tr>
+                            <tr><td>160</td><td>5793422139</td><td>firbubeuqr@outlook.com</td></tr>
+                            <tr><td>161</td><td>8826728763</td><td>qcjgvgjztl@outlook.com</td></tr>
+                            <tr><td>162</td><td>8352618686</td><td>kkmvyanovg@outlook.com</td></tr>
+                            <tr><td>163</td><td>6958110278</td><td>qdyatahifu@gmail.com</td></tr>
+                            <tr><td>164</td><td>4460918357</td><td>kmdvhzglkg@gmail.com</td></tr>
+                            <tr><td>165</td><td>3384812738</td><td>jbyljbxypd@hotmail.com</td></tr>
+                            <tr><td>166</td><td>2539283591</td><td>kwdconiemb@hotmail.com</td></tr>
+                            <tr><td>167</td><td>5020045464</td><td>ntejfuqjnh@outlook.com</td></tr>
+                            <tr><td>168</td><td>4102475091</td><td>waytzfmjbk@gmail.com</td></tr>
+                            <tr><td>169</td><td>702033101</td><td>fyekeduhvb@yahoo.com</td></tr>
+                            <tr><td>170</td><td>5537472116</td><td>fieludfqyg@hotmail.com</td></tr>
+                            <tr><td>171</td><td>5467670519</td><td>fiqjuvjezm@yahoo.com</td></tr>
+                            <tr><td>172</td><td>7337066138</td><td>xbxjckhbfv@gmail.com</td></tr>
+                            <tr><td>173</td><td>1507974666</td><td>ugwwcugpxb@hotmail.com</td></tr>
+                            <tr><td>174</td><td>3418723171</td><td>cfavkhfzvo@gmail.com</td></tr>
+                            <tr><td>175</td><td>2154652874</td><td>qnwkbmlbal@hotmail.com</td></tr>
+                            <tr><td>176</td><td>6236320416</td><td>gjfdsglruh@yahoo.com</td></tr>
+                            <tr><td>177</td><td>1916336116</td><td>enxvnwzjli@yahoo.com</td></tr>
+                            <tr><td>178</td><td>5032950601</td><td>qsdgnilnum@yahoo.com</td></tr>
+                            <tr><td>179</td><td>5491772630</td><td>bwieyefcca@gmail.com</td></tr>
+                            <tr><td>180</td><td>7149447602</td><td>mfcqiskpba@yahoo.com</td></tr>
+                            <tr><td>181</td><td>1576360448</td><td>knojtlfmqe@outlook.com</td></tr>
+                            <tr><td>182</td><td>8809018625</td><td>aytoodvbll@gmail.com</td></tr>
+                            <tr><td>183</td><td>4178081385</td><td>gbgarqydfa@outlook.com</td></tr>
+                            <tr><td>184</td><td>7108657515</td><td>zvqxakhfbi@hotmail.com</td></tr>
+                            <tr><td>185</td><td>2812934741</td><td>zabpslxsdl@hotmail.com</td></tr>
+                            <tr><td>186</td><td>9841212916</td><td>shkmfqcpkr@outlook.com</td></tr>
+                            <tr><td>187</td><td>7510579703</td><td>mwopjgzawn@hotmail.com</td></tr>
+                            <tr><td>188</td><td>2956377887</td><td>kzhjammbgl@gmail.com</td></tr>
+                            <tr><td>189</td><td>1819079854</td><td>yxmssacpjk@gmail.com</td></tr>
+                            <tr><td>190</td><td>8823446129</td><td>bpdiuwduyh@outlook.com</td></tr>
+                            <tr><td>191</td><td>762061254</td><td>ndqhsmiwim@yahoo.com</td></tr>
+                            <tr><td>192</td><td>743264229</td><td>axguscltdu@gmail.com</td></tr>
+                            <tr><td>193</td><td>7753251027</td><td>kynajofwoa@outlook.com</td></tr>
+                            <tr><td>194</td><td>8187277056</td><td>uyjnhncynv@yahoo.com</td></tr>
+                            <tr><td>195</td><td>2077886435</td><td>iaxtraikfw@gmail.com</td></tr>
+                            <tr><td>196</td><td>2641128500</td><td>srzjcpgkun@gmail.com</td></tr>
+                            <tr><td>197</td><td>1973643072</td><td>rijsezfsbf@yahoo.com</td></tr>
+                            <tr><td>198</td><td>518228117</td><td>losropsowu@yahoo.com</td></tr>
+                            <tr><td>199</td><td>1381347335</td><td>gjbjyjgqxr@outlook.com</td></tr>
+                            <tr><td>200</td><td>5524221101</td><td>akrfaatgfn@outlook.com</td></tr>
+                            <tr><td>201</td><td>5597672162</td><td>feibguavpv@gmail.com</td></tr>
+                            <tr><td>202</td><td>3997301765</td><td>gfwhjftfom@gmail.com</td></tr>
+                            <tr><td>203</td><td>5987667507</td><td>kazeidexhv@gmail.com</td></tr>
+                            <tr><td>204</td><td>4984663443</td><td>maveptxcfw@gmail.com</td></tr>
+                            <tr><td>205</td><td>6559018000</td><td>lnszaezidy@yahoo.com</td></tr>
+                            <tr><td>206</td><td>6542938709</td><td>ethlkhhivr@outlook.com</td></tr>
+                            <tr><td>207</td><td>6610804537</td><td>rssekorqrl@gmail.com</td></tr>
+                            <tr><td>208</td><td>3129379682</td><td>bevkcemfxi@yahoo.com</td></tr>
+                            <tr><td>209</td><td>4690134748</td><td>qnarvjuhnd@yahoo.com</td></tr>
+                            <tr><td>210</td><td>2919637387</td><td>knpcjvkekd@hotmail.com</td></tr>
+                            <tr><td>211</td><td>3154584844</td><td>yaoljusnpq@yahoo.com</td></tr>
+                            <tr><td>212</td><td>2174105234</td><td>eropimofbf@yahoo.com</td></tr>
+                            <tr><td>213</td><td>1818074054</td><td>ffguwycdav@yahoo.com</td></tr>
+                            <tr><td>214</td><td>9361289152</td><td>oqjtqkehtl@outlook.com</td></tr>
+                            <tr><td>215</td><td>5139192340</td><td>pjpejzhhvr@outlook.com</td></tr>
+                            <tr><td>216</td><td>4584912224</td><td>ypeftfmdxo@gmail.com</td></tr>
+                            <tr><td>217</td><td>9896067649</td><td>qstgeljadh@gmail.com</td></tr>
+                            <tr><td>218</td><td>7578638136</td><td>ebhilttgaw@outlook.com</td></tr>
+                            <tr><td>219</td><td>6845341810</td><td>jvfevjofze@gmail.com</td></tr>
+                            <tr><td>220</td><td>6400670396</td><td>agskzprpqw@hotmail.com</td></tr>
+                            <tr><td>221</td><td>9121325474</td><td>scmzmqqegm@outlook.com</td></tr>
+                            <tr><td>222</td><td>2301224756</td><td>wvxxvzxaot@hotmail.com</td></tr>
+                            <tr><td>223</td><td>8036506720</td><td>etcikkxjnb@yahoo.com</td></tr>
+                            <tr><td>224</td><td>4763062900</td><td>hprposyooo@yahoo.com</td></tr>
+                            <tr><td>225</td><td>2313397734</td><td>tpfoxoqany@gmail.com</td></tr>
+                            <tr><td>226</td><td>319195281</td><td>wenjwflert@outlook.com</td></tr>
+                            <tr><td>227</td><td>3677799454</td><td>hxehhipkzb@hotmail.com</td></tr>
+                            <tr><td>228</td><td>300443768</td><td>krpcvvlhcz@gmail.com</td></tr>
+                            <tr><td>229</td><td>4787521101</td><td>ifhbquasti@yahoo.com</td></tr>
+                            <tr><td>230</td><td>975770483</td><td>kgivdxxhfj@outlook.com</td></tr>
+                            <tr><td>231</td><td>2532970220</td><td>utxkaosjjg@hotmail.com</td></tr>
+                            <tr><td>232</td><td>9273289274</td><td>xbcsgtewxc@gmail.com</td></tr>
+                            <tr><td>233</td><td>3672533444</td><td>kkwxduublh@gmail.com</td></tr>
+                            <tr><td>234</td><td>370676347</td><td>alcjeenwuv@gmail.com</td></tr>
+                            <tr><td>235</td><td>2821551352</td><td>kmpzdugjxq@outlook.com</td></tr>
+                            <tr><td>236</td><td>8706559944</td><td>vigzzfgjxf@hotmail.com</td></tr>
+                            <tr><td>237</td><td>4285057163</td><td>yxmmwyldcs@gmail.com</td></tr>
+                            <tr><td>238</td><td>3942781628</td><td>nwuvjcviho@outlook.com</td></tr>
+                            <tr><td>239</td><td>4057909307</td><td>cauuxfjjrx@outlook.com</td></tr>
+                            <tr><td>240</td><td>8816262174</td><td>bzcmgtxpyp@gmail.com</td></tr>
+                            <tr><td>241</td><td>4935385540</td><td>tokjeepkhs@yahoo.com</td></tr>
+                            <tr><td>242</td><td>5646733307</td><td>yoxadscuve@gmail.com</td></tr>
+                            <tr><td>243</td><td>4926084327</td><td>mtjdjcognv@hotmail.com</td></tr>
+                            <tr><td>244</td><td>6277347354</td><td>lfhuxbxesw@yahoo.com</td></tr>
+                            <tr><td>245</td><td>6194771669</td><td>jxbhgdasbk@yahoo.com</td></tr>
+                        </tbody>
+                       
+                        <!-- 這裡放入第二頁的資料 -->
+                    </table>
+                    <table id="C" class="content_table mx-auto" style="display: none;">
+                        <!-- 頁面3的內容 -->
+                        <thead><tr><th>顧客ID</th><th>電話</th><th>Email</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td>466015269</td><td>bijwmgkdxq@outlook.com</td></tr>
+                            <tr><td>2</td><td>3976574987</td><td>ihkrvfuwkk@outlook.com</td></tr>
+                            <tr><td>3</td><td>6187107361</td><td>njbvvbkbyj@hotmail.com</td></tr>
+                            <tr><td>4</td><td>7402163194</td><td>oqnvofckha@yahoo.com</td></tr>
+                            <tr><td>5</td><td>6170300971</td><td>jqnngygnsf@outlook.com</td></tr>
+                            <tr><td>6</td><td>6786880503</td><td>pcdatcuitg@hotmail.com</td></tr>
+                            <tr><td>7</td><td>5468755220</td><td>nuoxphhvxf@outlook.com</td></tr>
+                            <tr><td>8</td><td>8948364482</td><td>owzqlgzhoy@hotmail.com</td></tr>
+                            <tr><td>9</td><td>9890978641</td><td>aydldptzap@gmail.com</td></tr>
+                            <tr><td>10</td><td>8548865687</td><td>vgthygdokx@gmail.com</td></tr>
+                            <tr><td>11</td><td>282598617</td><td>beekqzkfpl@yahoo.com</td></tr>
+                            <tr><td>12</td><td>8582863993</td><td>meliidbeot@gmail.com</td></tr>
+                            <tr><td>13</td><td>3535184075</td><td>stqypdxstv@hotmail.com</td></tr>
+                            <tr><td>14</td><td>7857543952</td><td>lokfdhyxyq@hotmail.com</td></tr>
+                            <tr><td>15</td><td>9363160600</td><td>xykxkjlhjz@gmail.com</td></tr>
+                            <tr><td>16</td><td>7538330890</td><td>fbzhekecys@outlook.com</td></tr>
+                            <tr><td>17</td><td>7259446277</td><td>qntaxvxlot@hotmail.com</td></tr>
+                            <tr><td>18</td><td>6848820476</td><td>rjbnuqfuep@outlook.com</td></tr>
+                            <tr><td>19</td><td>4232899101</td><td>ihpjjdikep@yahoo.com</td></tr>
+                            <tr><td>20</td><td>395363709</td><td>foegudrwyw@yahoo.com</td></tr>
+                            <tr><td>21</td><td>9770445864</td><td>havslzhgle@gmail.com</td></tr>
+                            <tr><td>22</td><td>4454945083</td><td>qzakfhawag@hotmail.com</td></tr>
+                            <tr><td>23</td><td>4514301700</td><td>tvxfaqrlsj@outlook.com</td></tr>
+                            <tr><td>24</td><td>157400736</td><td>iswwanxffu@gmail.com</td></tr>
+                            <tr><td>25</td><td>2751971689</td><td>btwkbvjvdw@outlook.com</td></tr>
+                            <tr><td>26</td><td>5367999031</td><td>fivizvoazo@outlook.com</td></tr>
+                            <tr><td>27</td><td>5976743522</td><td>lhnulujyfr@yahoo.com</td></tr>
+                            <tr><td>28</td><td>189760857</td><td>bstxdklzun@outlook.com</td></tr>
+                            <tr><td>29</td><td>4546715872</td><td>lfwaboxfys@gmail.com</td></tr>
+                            <tr><td>30</td><td>7111007522</td><td>ekxemvsrqk@outlook.com</td></tr>
+                            <tr><td>31</td><td>5340141959</td><td>zbvpyermpk@yahoo.com</td></tr>
+                            <tr><td>32</td><td>8485852634</td><td>qnwdiomong@hotmail.com</td></tr>
+                            <tr><td>33</td><td>5680654593</td><td>akcucxxujb@hotmail.com</td></tr>
+                            <tr><td>34</td><td>4522575421</td><td>bgikysltlw@gmail.com</td></tr>
+                            <tr><td>35</td><td>170043963</td><td>bteawiiysv@outlook.com</td></tr>
+                            <tr><td>36</td><td>8792414608</td><td>ofhrxqvkfg@outlook.com</td></tr>
+                            <tr><td>37</td><td>7653756167</td><td>eporhkvdax@yahoo.com</td></tr>
+                            <tr><td>38</td><td>2079609728</td><td>xtxcingssb@yahoo.com</td></tr>
+                            <tr><td>39</td><td>2982191323</td><td>dohlewidyt@yahoo.com</td></tr>
+                            <tr><td>40</td><td>5886257746</td><td>zkwqwkfpfv@gmail.com</td></tr>
+                            <tr><td>41</td><td>3557968882</td><td>qvcakynbui@outlook.com</td></tr>
+                            <tr><td>42</td><td>2483618484</td><td>bkxsgctmuw@outlook.com</td></tr>
+                            <tr><td>43</td><td>3120122798</td><td>xxvrxqdvzu@outlook.com</td></tr>
+                            <tr><td>44</td><td>2959648150</td><td>wokvvgyjfs@outlook.com</td></tr>
+                            <tr><td>45</td><td>2375703149</td><td>fgnspnrjsu@gmail.com</td></tr>
+                            <tr><td>46</td><td>9944430947</td><td>xurybpzbrc@yahoo.com</td></tr>
+                            <tr><td>47</td><td>7262395984</td><td>uiuetalbvj@outlook.com</td></tr>
+                            <tr><td>48</td><td>850759190</td><td>gjgmyxpxxa@outlook.com</td></tr>
+                            <tr><td>49</td><td>4112812344</td><td>dzqvqpvomj@hotmail.com</td></tr>
+                            <tr><td>50</td><td>3576950973</td><td>glcgkmowuj@hotmail.com</td></tr>
+                            <tr><td>51</td><td>7725949369</td><td>cebncfvtua@yahoo.com</td></tr>
+                            <tr><td>52</td><td>8329964674</td><td>ypubuprzmd@yahoo.com</td></tr>
+                            <tr><td>53</td><td>3048108408</td><td>rmrvhekfft@yahoo.com</td></tr>
+                            <tr><td>54</td><td>4862271730</td><td>nzvklijtxl@outlook.com</td></tr>
+                            <tr><td>55</td><td>202478370</td><td>lpjkvffwtr@hotmail.com</td></tr>
+                            <tr><td>56</td><td>72265504</td><td>fzpbansyhn@gmail.com</td></tr>
+                            <tr><td>57</td><td>3168524198</td><td>cvwxdarnuz@yahoo.com</td></tr>
+                            <tr><td>58</td><td>4495301861</td><td>evmqrllwxu@gmail.com</td></tr>
+                            <tr><td>59</td><td>623255352</td><td>aodjprzuei@outlook.com</td></tr>
+                            <tr><td>60</td><td>3647831297</td><td>nzjhfcrcwo@outlook.com</td></tr>
+                            <tr><td>61</td><td>434148540</td><td>bwwkcprgzd@yahoo.com</td></tr>
+                            <tr><td>62</td><td>4092704806</td><td>mfzgebqaxf@gmail.com</td></tr>
+                            <tr><td>63</td><td>7263706254</td><td>jsbqtwfktd@outlook.com</td></tr>
+                            <tr><td>64</td><td>9513472111</td><td>wnnsaknzfh@yahoo.com</td></tr>
+                            <tr><td>65</td><td>9239456055</td><td>tbwfchgonb@hotmail.com</td></tr>
+                            <tr><td>66</td><td>7014362656</td><td>aourrnpeze@gmail.com</td></tr>
+                            <tr><td>67</td><td>6270947339</td><td>bncarxunva@outlook.com</td></tr>
+                            <tr><td>68</td><td>691397674</td><td>sxtlievoon@hotmail.com</td></tr>
+                            <tr><td>69</td><td>3191322823</td><td>unawvmrnje@outlook.com</td></tr>
+                            <tr><td>70</td><td>4828960099</td><td>igjjrcnlhq@gmail.com</td></tr>
+                            <tr><td>71</td><td>9959311978</td><td>bkuguuewak@hotmail.com</td></tr>
+                            <tr><td>72</td><td>1800211362</td><td>wjirewxexv@hotmail.com</td></tr>
+                            <tr><td>73</td><td>3878199008</td><td>apqrcibhix@yahoo.com</td></tr>
+                            <tr><td>74</td><td>5404686655</td><td>alpsgjzbjt@yahoo.com</td></tr>
+                            <tr><td>75</td><td>9678456484</td><td>ognctuvqjv@outlook.com</td></tr>
+                            <tr><td>76</td><td>2179699056</td><td>bukoliiavv@outlook.com</td></tr>
+                            <tr><td>77</td><td>2396529780</td><td>ibjaqdebvp@outlook.com</td></tr>
+                            <tr><td>78</td><td>6277347354</td><td>lfhuxbxesw@yahoo.com</td></tr>
+                            <tr><td>79</td><td>7906374329</td><td>asakqynazt@outlook.com</td></tr>
+                            <tr><td>80</td><td>405799931</td><td>umgveqjmsp@yahoo.com</td></tr>
+                            <tr><td>81</td><td>9484376264</td><td>hiewhgumfm@outlook.com</td></tr>
+                            <tr><td>82</td><td>8338575831</td><td>ibrikxvofa@hotmail.com</td></tr>
+                            <tr><td>83</td><td>4903993665</td><td>qwtxkfjtix@yahoo.com</td></tr>
+                            <tr><td>84</td><td>7896183919</td><td>hwygieiope@yahoo.com</td></tr>
+                            <tr><td>85</td><td>191739888</td><td>bumpahhjni@hotmail.com</td></tr>
+                            <tr><td>86</td><td>4741195832</td><td>iajfkomjik@gmail.com</td></tr>
+                            <tr><td>87</td><td>2951279999</td><td>tdmjmlnjgy@hotmail.com</td></tr>
+                            <tr><td>88</td><td>2695502670</td><td>cinxxyeked@gmail.com</td></tr>
+                            <tr><td>89</td><td>2712094688</td><td>dxijicvrvl@yahoo.com</td></tr>
+                            <tr><td>90</td><td>5010569207</td><td>nfwxeutnss@yahoo.com</td></tr>
+                            <tr><td>91</td><td>3096657693</td><td>hqookvghsz@outlook.com</td></tr>
+                            <tr><td>92</td><td>7545131861</td><td>ksfyyzdbvi@hotmail.com</td></tr>
+                            <tr><td>93</td><td>4863211289</td><td>lvolnwfrve@outlook.com</td></tr>
+                            <tr><td>94</td><td>4485478512</td><td>hqfhoxnyvy@yahoo.com</td></tr>
+                            <tr><td>95</td><td>1933606034</td><td>avzlkpbodq@gmail.com</td></tr>
+                            <tr><td>96</td><td>3829978859</td><td>lngvtdxjnz@yahoo.com</td></tr>
+                            <tr><td>97</td><td>3006952645</td><td>fwrpiktngt@gmail.com</td></tr>
+                            <tr><td>98</td><td>7548391133</td><td>rxnobltdqf@outlook.com</td></tr>
+                            <tr><td>99</td><td>5439713785</td><td>wsnkftzruk@hotmail.com</td></tr>
+                            <tr><td>100</td><td>7952850773</td><td>jcotqjctmx@yahoo.com</td></tr>
+                            <tr><td>101</td><td>1511320990</td><td>wmedghrpxo@hotmail.com</td></tr>
+                            <tr><td>102</td><td>9511326960</td><td>egfjkrgcun@outlook.com</td></tr>
+                            <tr><td>103</td><td>9291783714</td><td>rxlhdcwvwx@outlook.com</td></tr>
+                            <tr><td>104</td><td>9634600388</td><td>gtpkgktxls@hotmail.com</td></tr>
+                            <tr><td>105</td><td>4827519293</td><td>eufmzhrnlo@hotmail.com</td></tr>
+                            <tr><td>106</td><td>2246225733</td><td>hzdemcizvl@gmail.com</td></tr>
+                            <tr><td>107</td><td>1665556430</td><td>tsciraqfom@gmail.com</td></tr>
+                            <tr><td>108</td><td>8194726858</td><td>dnphhphkdz@outlook.com</td></tr>
+                            <tr><td>109</td><td>7412911346</td><td>dlymoqkgdw@outlook.com</td></tr>
+                            <tr><td>110</td><td>5390805461</td><td>srlkonnozn@yahoo.com</td></tr>
+                            <tr><td>111</td><td>5131984016</td><td>oawjzrezdp@gmail.com</td></tr>
+                            <tr><td>112</td><td>7222728073</td><td>snsxevduur@yahoo.com</td></tr>
+                            <tr><td>113</td><td>8204583139</td><td>pzdldatvzy@hotmail.com</td></tr>
+                            <tr><td>114</td><td>3561545349</td><td>fzuyhsylqb@outlook.com</td></tr>
+                            <tr><td>115</td><td>1846594161</td><td>zbiilsqwpy@yahoo.com</td></tr>
+                            <tr><td>116</td><td>2165875335</td><td>rpxilvctko@hotmail.com</td></tr>
+                            <tr><td>117</td><td>8991557901</td><td>fvoxsdzznu@gmail.com</td></tr>
+                            <tr><td>118</td><td>3254136597</td><td>hodqztzbam@outlook.com</td></tr>
+                            <tr><td>119</td><td>3915637828</td><td>hywdeysdef@gmail.com</td></tr>
+                            <tr><td>120</td><td>45695407</td><td>jakjialljd@yahoo.com</td></tr>
+                            <tr><td>121</td><td>1256502024</td><td>iseqgtpgfi@hotmail.com</td></tr>
+                            <tr><td>122</td><td>2451945485</td><td>ktwlsqvqxm@outlook.com</td></tr>
+                            <tr><td>123</td><td>4024070251</td><td>qgxsyuwcoy@outlook.com</td></tr>
+                            <tr><td>124</td><td>623477313</td><td>azxrkuecbw@hotmail.com</td></tr>
+                            <tr><td>125</td><td>6015406356</td><td>zfostlxtup@gmail.com</td></tr>
+                            <tr><td>126</td><td>8934584200</td><td>wwdtlxwhtr@hotmail.com</td></tr>
+                            <tr><td>127</td><td>5029576345</td><td>zrvedqyvbs@yahoo.com</td></tr>
+                            <tr><td>128</td><td>7633328463</td><td>ewehkooasn@outlook.com</td></tr>
+                            <tr><td>129</td><td>3572139445</td><td>iyqhpvhtyr@outlook.com</td></tr>
+                            <tr><td>130</td><td>4009551287</td><td>gkdnuheehp@hotmail.com</td></tr>
+                            <tr><td>131</td><td>3150035134</td><td>vyatfvpddt@hotmail.com</td></tr>
+                            <tr><td>132</td><td>3132318520</td><td>pzrrnipcmd@outlook.com</td></tr>
+                            <tr><td>133</td><td>682734664</td><td>khgrgevuta@yahoo.com</td></tr>
+                            <tr><td>134</td><td>6694242841</td><td>nrtwzlidaa@outlook.com</td></tr>
+                            <tr><td>135</td><td>3362751261</td><td>gycfaqhmlg@hotmail.com</td></tr>
+                            <tr><td>136</td><td>4136872389</td><td>iuxmswwwoo@hotmail.com</td></tr>
+                            <tr><td>137</td><td>9490329336</td><td>immmhfyfib@hotmail.com</td></tr>
+                            <tr><td>138</td><td>5454625286</td><td>hcxboplnro@gmail.com</td></tr>
+                            <tr><td>139</td><td>5207717729</td><td>kiyihggovs@gmail.com</td></tr>
+                            <tr><td>140</td><td>4196781155</td><td>xqsabsmyuh@gmail.com</td></tr>
+                            <tr><td>141</td><td>5626838139</td><td>shjomhzeca@yahoo.com</td></tr>
+                            <tr><td>142</td><td>7070676077</td><td>mgexpvlvrk@gmail.com</td></tr>
+                            <tr><td>143</td><td>174850316</td><td>kcieiwrqgs@yahoo.com</td></tr>
+                            <tr><td>144</td><td>4979197261</td><td>cmbsbuzeen@hotmail.com</td></tr>
+                            <tr><td>145</td><td>9215261500</td><td>niosxwyekf@gmail.com</td></tr>
+                            <tr><td>146</td><td>7861116760</td><td>ulpohvrgce@yahoo.com</td></tr>
+                            <tr><td>147</td><td>6838308971</td><td>vzicjtoxlt@gmail.com</td></tr>
+                            <tr><td>148</td><td>7525027658</td><td>imqjlcjjpv@gmail.com</td></tr>
+                            <tr><td>149</td><td>867890275</td><td>uvkfsfzhig@gmail.com</td></tr>
+                            <tr><td>150</td><td>7309584928</td><td>wrdawuvlbh@yahoo.com</td></tr>
+                            <tr><td>151</td><td>3849998182</td><td>wqwtvvyvka@gmail.com</td></tr>
+                            <tr><td>152</td><td>3636742724</td><td>jrvekrxwaq@outlook.com</td></tr>
+                            <tr><td>153</td><td>8395556490</td><td>lrizolilzl@gmail.com</td></tr>
+                            <tr><td>154</td><td>8803760463</td><td>nbhtawtiet@hotmail.com</td></tr>
+                            <tr><td>155</td><td>5814635399</td><td>eanzqomlis@gmail.com</td></tr>
+                            <tr><td>156</td><td>9552716751</td><td>uqaggabbfo@yahoo.com</td></tr>
+                            <tr><td>157</td><td>7217199281</td><td>eixgkqxajw@outlook.com</td></tr>
+                            <tr><td>158</td><td>4920451791</td><td>uxeuhirlqg@gmail.com</td></tr>
+                            <tr><td>159</td><td>5092529211</td><td>rowgxyeypv@hotmail.com</td></tr>
+                            <tr><td>160</td><td>5181073916</td><td>extsphgnbs@gmail.com</td></tr>
+                            <tr><td>161</td><td>8525198267</td><td>cuwtqkpapf@hotmail.com</td></tr>
+                            <tr><td>162</td><td>7866263042</td><td>nvwhiamvhk@hotmail.com</td></tr>
+                            <tr><td>163</td><td>3365611660</td><td>slmqzkavlq@yahoo.com</td></tr>
+                            <tr><td>164</td><td>3822921486</td><td>fxuooulltp@gmail.com</td></tr>
+                            <tr><td>165</td><td>979051049</td><td>cjradcmoik@hotmail.com</td></tr>
+                            <tr><td>166</td><td>4108106346</td><td>hldvgboqjw@gmail.com</td></tr>
+                            <tr><td>167</td><td>3872990403</td><td>veumxcdduw@outlook.com</td></tr>
+                            <tr><td>168</td><td>8394105842</td><td>xpwqzgxaxs@hotmail.com</td></tr>
+                            <tr><td>169</td><td>6551459348</td><td>qbapnvhvqf@yahoo.com</td></tr>
+                            <tr><td>170</td><td>669910533</td><td>nexepxsqlc@gmail.com</td></tr>
+                            <tr><td>171</td><td>9144264929</td><td>kzoqoeveaw@gmail.com</td></tr>
+                            <tr><td>172</td><td>8272947669</td><td>arqtoseudz@hotmail.com</td></tr>
+                            <tr><td>173</td><td>9475109411</td><td>repofyydcr@yahoo.com</td></tr>
+                            <tr><td>174</td><td>2976608735</td><td>mxlkkotqvu@gmail.com</td></tr>
+                            <tr><td>175</td><td>27266573</td><td>pqvqqttssu@gmail.com</td></tr>
+                            <tr><td>176</td><td>726143006</td><td>uvmlxanbmp@hotmail.com</td></tr>
+                            <tr><td>177</td><td>5443966584</td><td>gvjlpoqvpk@gmail.com</td></tr>
+                            <tr><td>178</td><td>4243613883</td><td>fwxclrvpjd@hotmail.com</td></tr>
+                            <tr><td>179</td><td>2369021387</td><td>iklyejzxii@gmail.com</td></tr>
+                            <tr><td>180</td><td>9895747297</td><td>aoqwrespbg@yahoo.com</td></tr>
+                            <tr><td>181</td><td>8231517040</td><td>fcddjgwkft@yahoo.com</td></tr>
+                            <tr><td>182</td><td>3000395456</td><td>yucwfthiff@outlook.com</td></tr>
+                            <tr><td>183</td><td>6478382671</td><td>cqtapvkfky@hotmail.com</td></tr>
+                            <tr><td>184</td><td>4338655868</td><td>gvvfycccmx@gmail.com</td></tr>
+                            <tr><td>185</td><td>2227454063</td><td>yfjvuffncl@hotmail.com</td></tr>
+                            <tr><td>186</td><td>8146763986</td><td>nylyjnwmoc@hotmail.com</td></tr>
+                            <tr><td>187</td><td>865941064</td><td>fnicowenyz@hotmail.com</td></tr>
+                            <tr><td>188</td><td>6975272266</td><td>paurhegvxq@hotmail.com</td></tr>
+                            <tr><td>189</td><td>4142422324</td><td>pjnauaiykt@hotmail.com</td></tr>
+                            <tr><td>190</td><td>4264175938</td><td>ouqkizstlo@gmail.com</td></tr>
+                            <tr><td>191</td><td>8313209633</td><td>ejwtidatsp@yahoo.com</td></tr>
+                            <tr><td>192</td><td>6035504251</td><td>uvmykzbbkc@yahoo.com</td></tr>
+                            <tr><td>193</td><td>7730738566</td><td>wlxdozfapo@yahoo.com</td></tr>
+                            <tr><td>194</td><td>1726656381</td><td>zhtzbfpzsr@yahoo.com</td></tr>
+                            <tr><td>195</td><td>3340827368</td><td>grkvxxkdod@gmail.com</td></tr>
+                            <tr><td>196</td><td>3647171409</td><td>gtmwiezjff@gmail.com</td></tr>
+                            <tr><td>197</td><td>2688466174</td><td>dlhquinegz@yahoo.com</td></tr>
+                            <tr><td>198</td><td>8123350500</td><td>upxiapidqf@hotmail.com</td></tr>
+                            <tr><td>199</td><td>5976266010</td><td>bhttzvehmd@hotmail.com</td></tr>
+                            <tr><td>200</td><td>2899072733</td><td>rcakzjdkgt@gmail.com</td></tr>
+                            <tr><td>201</td><td>4155069216</td><td>totmmtqbrj@gmail.com</td></tr>
+                            <tr><td>202</td><td>675796406</td><td>ozwngcwsdz@hotmail.com</td></tr>
+                            <tr><td>203</td><td>302735878</td><td>pgmzlzrepf@outlook.com</td></tr>
+                            <tr><td>204</td><td>530018661</td><td>qwbcudtxxg@yahoo.com</td></tr>
+                            <tr><td>205</td><td>205868180</td><td>obgovobtjr@outlook.com</td></tr>
+                            <tr><td>206</td><td>4889163633</td><td>qwhfsfednj@outlook.com</td></tr>
+                            <tr><td>207</td><td>3876385677</td><td>nagzgklknu@outlook.com</td></tr>
+                            <tr><td>208</td><td>8388147776</td><td>lmabwwfupv@yahoo.com</td></tr>
+                            <tr><td>209</td><td>4196722051</td><td>oqgbctdbvw@yahoo.com</td></tr>
+                            <tr><td>210</td><td>9752707266</td><td>ximcnibgfw@gmail.com</td></tr>
+                            <tr><td>211</td><td>238173979</td><td>ihsfeyrxnb@yahoo.com</td></tr>
+                            <tr><td>212</td><td>1108873124</td><td>cltlviunjs@yahoo.com</td></tr>
+                            <tr><td>213</td><td>3746651271</td><td>ilulvbncqk@yahoo.com</td></tr>
+                            <tr><td>214</td><td>9880048124</td><td>pblrijvjok@hotmail.com</td></tr>
+                            <tr><td>215</td><td>7919198860</td><td>hkzcdwsbrp@yahoo.com</td></tr>
+                            <tr><td>216</td><td>4265536875</td><td>xochenwvqk@outlook.com</td></tr>
+                            <tr><td>217</td><td>1542837996</td><td>decadgvfvs@yahoo.com</td></tr>
+                            <tr><td>218</td><td>5489184471</td><td>fesbdwmesk@yahoo.com</td></tr>
+                            <tr><td>219</td><td>7888247386</td><td>vodwlgnvnc@outlook.com</td></tr>
+                            <tr><td>220</td><td>7201227995</td><td>jmgtwrxose@hotmail.com</td></tr>
+                            <tr><td>221</td><td>6246024623</td><td>iwegzklqvz@outlook.com</td></tr>
+                            <tr><td>222</td><td>8537987811</td><td>afarmpcrbk@hotmail.com</td></tr>
+                            <tr><td>223</td><td>5103496080</td><td>hcjcljllpp@gmail.com</td></tr>
+                            <tr><td>224</td><td>7122892999</td><td>qlkshlchhr@outlook.com</td></tr>
+                            <tr><td>225</td><td>3902389287</td><td>oaqnahdcar@gmail.com</td></tr>
+                            <tr><td>226</td><td>6677693923</td><td>refejqtloi@gmail.com</td></tr>
+                            <tr><td>227</td><td>8300060818</td><td>dqyrjxdrru@gmail.com</td></tr>
+                            <tr><td>228</td><td>1960615393</td><td>pzkufyppdx@gmail.com</td></tr>
+                            <tr><td>229</td><td>4147236672</td><td>wawakdmlqk@gmail.com</td></tr>
+                            <tr><td>230</td><td>8826106328</td><td>sxxijbutcu@yahoo.com</td></tr>
+                            <tr><td>231</td><td>1057973692</td><td>agrubssvgw@hotmail.com</td></tr>
+                            <tr><td>232</td><td>2856781000</td><td>rjpmpeptil@hotmail.com</td></tr>
+                            <tr><td>233</td><td>6342838643</td><td>apfdeadltu@outlook.com</td></tr>
+                            <tr><td>234</td><td>2685983546</td><td>fkofntmite@outlook.com</td></tr>
+                            <tr><td>235</td><td>6579147647</td><td>anfcymupas@hotmail.com</td></tr>
+                            <tr><td>236</td><td>3661938952</td><td>kmrvqouoze@outlook.com</td></tr>
+                            <tr><td>237</td><td>9922103880</td><td>qkcycdumct@gmail.com</td></tr>
+                            <tr><td>238</td><td>2401307762</td><td>uhxpbsbmts@yahoo.com</td></tr>
+                            <tr><td>239</td><td>8492560430</td><td>otzmutilja@hotmail.com</td></tr>
+                            <tr><td>240</td><td>9928645113</td><td>thnxxjelba@outlook.com</td></tr>
+                            <tr><td>241</td><td>4801002812</td><td>cvorasfvky@hotmail.com</td></tr>
+                            <tr><td>242</td><td>7328045719</td><td>wpnzravvsr@hotmail.com</td></tr>
+                            <tr><td>243</td><td>6305393587</td><td>uutabvzpio@hotmail.com</td></tr>
+                            <tr><td>244</td><td>9336510438</td><td>geakhbqgat@gmail.com</td></tr>
+                            <tr><td>245</td><td>2308828653</td><td>iagqqnybom@hotmail.com</td></tr>
+                            <tr><td>246</td><td>2028283348</td><td>yhugqdsqdj@outlook.com</td></tr>
+                            <tr><td>247</td><td>668480863</td><td>trkolugfdk@gmail.com</td></tr>
+                            <tr><td>248</td><td>7205400434</td><td>qibosmjysq@hotmail.com</td></tr>
+                            <tr><td>249</td><td>2680002688</td><td>zxrukfbkzk@yahoo.com</td></tr>
+                            <tr><td>250</td><td>7705549491</td><td>whtwxyhqfp@gmail.com</td></tr>
+                            <tr><td>251</td><td>7308898453</td><td>wmaffcxnxx@hotmail.com</td></tr>
+                        </tbody>
+                        <!-- 這裡放入第三頁的資料 -->
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+       
+    </section>
+
+
+    <script>
+        function showPage(pageId) {
+            // 隱藏所有表格
+            var tables = document.querySelectorAll('table');
+            tables.forEach(function(table) {
+                table.style.display = 'none';
+            });
+
+            // 顯示選定的表格
+            var selectedTable = document.getElementById(pageId);
+            if (selectedTable) {
+                selectedTable.style.display = 'table';
+                document.getElementById('branchTitle').innerText = `分店${pageId}之會員資料`;
+            }
+        }
+    </script>
+     <!-- 引入 jQuery -->
+     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+     <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.js"></script>
+     
+     <!-- DataTables 初始化 -->
+     <!-- <script>
+         $(document).ready(function() {
+             $('#A').DataTable({
+                 "pageLength": 10 
+             });
+         });
+     </script> -->
+
+     <!-- 選單的 -->
+     <script>
+        let arrow = document.querySelectorAll(".arrow");
+        arrow.forEach(function(item){
+            item.addEventListener("click",(e)=>{
+                console.log(e);
+            let arrowParent = e.target.parentElement.parentElement;
+            console.log(arrowParent);;
+            arrowParent.classList.toggle("showMenu");
+            });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>
